@@ -55,15 +55,28 @@
                 </div>
 
                 <div class="row mb-4">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <h6 class="text-muted mb-2">Email</h6>
                         <p class="mb-0">{{ $student->user->email ?? '-' }}</p>
                     </div>
+                </div>
+
+                <div class="row mb-4">
                     <div class="col-md-6">
                         <h6 class="text-muted mb-2">Dosen Pembimbing</h6>
                         <p class="mb-0">
                             @if($student->dosen)
                                 <span class="badge bg-info">{{ $student->dosen->name }}</span>
+                            @else
+                                <span class="text-muted">Belum ditentukan</span>
+                            @endif
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-2">Pembimbing Lapangan</h6>
+                        <p class="mb-0">
+                            @if($student->pembimbingLapangan)
+                                <span class="badge bg-warning">{{ $student->pembimbingLapangan->name }}</span>
                             @else
                                 <span class="text-muted">Belum ditentukan</span>
                             @endif

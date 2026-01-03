@@ -36,11 +36,16 @@ class DatabaseSeeder extends Seeder
             'role' => 'dosen',
         ]);
 
+        \App\Models\Company::create(['name' => 'PT Teknologi Nusantara']);
+        \App\Models\Company::create(['name' => 'PT Digital Indonesia']);
+        \App\Models\Company::create(['name' => 'PT Inovasi Solusi']);
+
         $pembimbing1 = User::create([
             'name' => 'Budi Santoso',
             'email' => 'pembimbing1@example.com',
             'password' => bcrypt('password'),
             'role' => 'pembimbing_lapangan',
+            'company_id' => 1,
         ]);
 
         $pembimbing2 = User::create([
@@ -48,6 +53,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'pembimbing2@example.com',
             'password' => bcrypt('password'),
             'role' => 'pembimbing_lapangan',
+            'company_id' => 2,
         ]);
 
         $mahasiswa1User = User::create([
@@ -71,15 +77,12 @@ class DatabaseSeeder extends Seeder
             'role' => 'mahasiswa',
         ]);
 
-        \App\Models\Company::create(['name' => 'PT Teknologi Nusantara']);
-        \App\Models\Company::create(['name' => 'PT Digital Indonesia']);
-        \App\Models\Company::create(['name' => 'PT Inovasi Solusi']);
-
         $student1 = \App\Models\Student::create([
             'user_id' => $mahasiswa1User->id,
             'name' => 'Andi Pratama',
             'nim' => '2020001',
             'dosen_id' => $dosen1->id,
+            'pembimbing_lapangan_id' => $pembimbing1->id,
         ]);
 
         $student2 = \App\Models\Student::create([
@@ -87,6 +90,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Fitri Handayani',
             'nim' => '2020002',
             'dosen_id' => $dosen1->id,
+            'pembimbing_lapangan_id' => $pembimbing2->id,
         ]);
 
         $student3 = \App\Models\Student::create([
@@ -94,6 +98,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Rizki Setiawan',
             'nim' => '2020003',
             'dosen_id' => $dosen2->id,
+            'pembimbing_lapangan_id' => $pembimbing1->id,
         ]);
 
         \App\Models\StudentInternship::create([
@@ -112,6 +117,11 @@ class DatabaseSeeder extends Seeder
             'student_id' => $student3->id,
             'company_id' => 3,
             'pembimbing_lapangan_id' => $pembimbing1->id,
+        ]);
+
+        // Seed evaluations
+        $this->call([
+            KpEvaluationSeeder::class,
         ]);
     }
 }

@@ -58,6 +58,11 @@ class User extends Authenticatable
         return $this->hasMany(Student::class, 'dosen_id');
     }
 
+    public function studentsAsPembimbingLapangan()
+    {
+        return $this->hasMany(Student::class, 'pembimbing_lapangan_id');
+    }
+
     public function fieldSupervisedInternships()
     {
         return $this->hasMany(StudentInternship::class, 'pembimbing_lapangan_id');

@@ -139,7 +139,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const companySelect = document.getElementById('company_id');
     const pembimbingSelect = document.getElementById('pembimbing_lapangan_id');
-    const currentPembimbingId = {{ $student->internship?->pembimbing_lapangan_id ?? 'null' }};
+    const currentPembimbingId = {{ $student->pembimbing_lapangan_id ?? 'null' }};
 
     // Load initial data if company is already selected
     if (companySelect.value) {

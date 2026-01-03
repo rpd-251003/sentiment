@@ -14,6 +14,7 @@ class Student extends Model
         'name',
         'nim',
         'dosen_id',
+        'pembimbing_lapangan_id',
     ];
 
     public function user(): BelongsTo
@@ -24,6 +25,11 @@ class Student extends Model
     public function dosen(): BelongsTo
     {
         return $this->belongsTo(User::class, 'dosen_id');
+    }
+
+    public function pembimbingLapangan(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'pembimbing_lapangan_id');
     }
 
     public function internship(): HasOne

@@ -68,6 +68,53 @@
 
                 <hr>
 
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-muted mb-0">Pembimbing Lapangan ({{ $company->pembimbingLapangans->count() }})</h6>
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addPembimbingModal">
+                            <i class="ti ti-plus"></i> Tambah Pembimbing
+                        </button>
+                    </div>
+                    @if($company->pembimbingLapangans->isEmpty())
+                        <p class="text-muted">Belum ada pembimbing lapangan untuk perusahaan ini</p>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nama</th>
+                                        <th>Email</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($company->pembimbingLapangans as $pembimbing)
+                                    <tr>
+                                        <td><strong>{{ $pembimbing->name }}</strong></td>
+                                        <td>{{ $pembimbing->email }}</td>
+                                        <td>
+                                            <a href="{{ route('admin.users.edit', $pembimbing) }}" class="btn btn-xs btn-outline-primary">
+                                                <i class="ti ti-edit"></i>
+                                            </a>
+                                            <form action="{{ route('admin.users.destroy', $pembimbing) }}" method="POST" class="d-inline"
+                                                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus pembimbing lapangan ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-xs btn-outline-danger">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+
+                <hr>
+
                 <div class="mb-3">
                     <h6 class="text-muted mb-3">Mahasiswa Magang ({{ $company->internships->count() }})</h6>
                     @if($company->internships->isEmpty())
@@ -114,6 +161,60 @@
                     <i class="ti ti-arrow-left"></i> Kembali
                 </a>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Add Pembimbing Lapangan -->
+<div class="modal fade" id="addPembimbingModal" tabindex="-1" aria-labelledby="addPembimbingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('admin.users.store') }}">
+                @csrf
+                <input type="hidden" name="role" value="pembimbing_lapangan">
+                <input type="hidden" name="company_id" value="{{ $company->id }}">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPembimbingModalLabel">
+                        <i class="ti ti-plus"></i> Tambah Pembimbing Lapangan
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                        <input type="text" id="name" name="name" class="form-control" required placeholder="Masukkan nama lengkap">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" id="email" name="email" class="form-control" required placeholder="Masukkan email">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input type="password" id="password" name="password" class="form-control" required placeholder="Minimal 8 karakter">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password_confirmation" class="form-label">Konfirmasi Password <span class="text-danger">*</span></label>
+                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" required placeholder="Masukkan ulang password">
+                    </div>
+
+                    <div class="alert alert-info" role="alert">
+                        <i class="ti ti-info-circle"></i>
+                        Pembimbing lapangan ini akan otomatis terhubung dengan perusahaan <strong>{{ $company->name }}</strong>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="ti ti-x"></i> Batal
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-device-floppy"></i> Simpan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

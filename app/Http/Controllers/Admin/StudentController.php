@@ -14,7 +14,7 @@ class StudentController extends Controller
 {
     public function index()
     {
-        $students = Student::with(['user', 'dosen'])->latest()->paginate(15);
+        $students = Student::with(['user', 'dosen', 'pembimbingLapangan'])->latest()->paginate(15);
         return view('admin.students.index', compact('students'));
     }
 
@@ -47,6 +47,7 @@ class StudentController extends Controller
                 'name' => $validated['name'],
                 'nim' => $validated['nim'],
                 'dosen_id' => $validated['dosen_id'],
+                'pembimbing_lapangan_id' => $validated['pembimbing_lapangan_id'] ?? null,
             ]);
 
             // Create internship if company is selected
@@ -71,7 +72,7 @@ class StudentController extends Controller
 
     public function show(Student $student)
     {
-        $student->load(['user', 'dosen', 'internship.company', 'internship.pembimbingLapangan', 'evaluations.evaluator', 'evaluations.sentimentResult']);
+        $student->load(['user', 'dosen', 'pembimbingLapangan', 'internship.company', 'internship.pembimbingLapangan', 'evaluations.evaluator', 'evaluations.sentimentResult']);
         return view('admin.students.show', compact('student'));
     }
 
@@ -108,6 +109,7 @@ class StudentController extends Controller
                 'name' => $validated['name'],
                 'nim' => $validated['nim'],
                 'dosen_id' => $validated['dosen_id'],
+                'pembimbing_lapangan_id' => $validated['pembimbing_lapangan_id'] ?? null,
             ]);
 
             // Update or create internship

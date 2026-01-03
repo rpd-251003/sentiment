@@ -36,7 +36,7 @@ class CompanyController extends Controller
 
     public function show(Company $company)
     {
-        $company->load(['internships.student.user', 'internships.pembimbingLapangan']);
+        $company->load(['internships.student.user', 'internships.pembimbingLapangan', 'pembimbingLapangans']);
         return view('admin.companies.show', compact('company'));
     }
 

@@ -46,6 +46,7 @@
                                     <th>Nama</th>
                                     <th>Email</th>
                                     <th>Dosen Pembimbing</th>
+                                    <th>Pembimbing Lapangan</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -58,6 +59,13 @@
                                     <td>
                                         @if($student->dosen)
                                             <span class="badge bg-info">{{ $student->dosen->name }}</span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($student->pembimbingLapangan)
+                                            <span class="badge bg-warning">{{ $student->pembimbingLapangan->name }}</span>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif

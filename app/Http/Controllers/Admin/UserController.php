@@ -28,6 +28,7 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', Rule::in(['admin', 'dosen', 'pembimbing_lapangan', 'mahasiswa'])],
+            'company_id' => ['nullable', 'exists:companies,id', 'required_if:role,pembimbing_lapangan'],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -55,12 +56,18 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'role' => ['required', Rule::in(['admin', 'dosen', 'pembimbing_lapangan', 'mahasiswa'])],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'company_id' => ['nullable', 'exists:companies,id', 'required_if:role,pembimbing_lapangan'],
         ]);
 
         if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
+        }
+
+        // Clear company_id if role is not pembimbing_lapangan
+        if ($validated['role'] !== 'pembimbing_lapangan') {
+            $validated['company_id'] = null;
         }
 
         $user->update($validated);
