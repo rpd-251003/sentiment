@@ -11,6 +11,13 @@ class StudentInternship extends Model
         'student_id',
         'company_id',
         'pembimbing_lapangan_id',
+        'start_date',
+        'end_date',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     public function student(): BelongsTo

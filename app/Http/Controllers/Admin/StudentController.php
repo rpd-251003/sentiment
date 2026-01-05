@@ -38,6 +38,10 @@ class StudentController extends Controller
             'dosen_id' => ['nullable', 'exists:users,id'],
             'company_id' => ['nullable', 'exists:companies,id'],
             'pembimbing_lapangan_id' => ['nullable', 'exists:users,id'],
+            'start_month' => ['nullable', 'string'],
+            'start_year' => ['nullable', 'integer'],
+            'end_month' => ['nullable', 'string'],
+            'end_year' => ['nullable', 'integer'],
         ]);
 
         DB::beginTransaction();
@@ -52,10 +56,25 @@ class StudentController extends Controller
 
             // Create internship if company is selected
             if (!empty($validated['company_id'])) {
+                // Prepare dates from month and year
+                $startDate = null;
+                $endDate = null;
+
+                if (!empty($validated['start_month']) && !empty($validated['start_year'])) {
+                    $startDate = $validated['start_year'] . '-' . $validated['start_month'] . '-01';
+                }
+
+                if (!empty($validated['end_month']) && !empty($validated['end_year'])) {
+                    // Get last day of the month
+                    $endDate = date('Y-m-t', strtotime($validated['end_year'] . '-' . $validated['end_month'] . '-01'));
+                }
+
                 StudentInternship::create([
                     'student_id' => $student->id,
                     'company_id' => $validated['company_id'],
                     'pembimbing_lapangan_id' => $validated['pembimbing_lapangan_id'] ?? null,
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
                 ]);
             }
 
@@ -100,6 +119,10 @@ class StudentController extends Controller
             'dosen_id' => ['nullable', 'exists:users,id'],
             'company_id' => ['nullable', 'exists:companies,id'],
             'pembimbing_lapangan_id' => ['nullable', 'exists:users,id'],
+            'start_month' => ['nullable', 'string'],
+            'start_year' => ['nullable', 'integer'],
+            'end_month' => ['nullable', 'string'],
+            'end_year' => ['nullable', 'integer'],
         ]);
 
         DB::beginTransaction();
@@ -114,11 +137,26 @@ class StudentController extends Controller
 
             // Update or create internship
             if (!empty($validated['company_id'])) {
+                // Prepare dates from month and year
+                $startDate = null;
+                $endDate = null;
+
+                if (!empty($validated['start_month']) && !empty($validated['start_year'])) {
+                    $startDate = $validated['start_year'] . '-' . $validated['start_month'] . '-01';
+                }
+
+                if (!empty($validated['end_month']) && !empty($validated['end_year'])) {
+                    // Get last day of the month
+                    $endDate = date('Y-m-t', strtotime($validated['end_year'] . '-' . $validated['end_month'] . '-01'));
+                }
+
                 StudentInternship::updateOrCreate(
                     ['student_id' => $student->id],
                     [
                         'company_id' => $validated['company_id'],
                         'pembimbing_lapangan_id' => $validated['pembimbing_lapangan_id'] ?? null,
+                        'start_date' => $startDate,
+                        'end_date' => $endDate,
                     ]
                 );
             } else {

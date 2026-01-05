@@ -105,18 +105,24 @@ class DatabaseSeeder extends Seeder
             'student_id' => $student1->id,
             'company_id' => 1,
             'pembimbing_lapangan_id' => $pembimbing1->id,
+            'start_date' => '2024-08-01',
+            'end_date' => '2024-12-31',
         ]);
 
         \App\Models\StudentInternship::create([
             'student_id' => $student2->id,
             'company_id' => 2,
             'pembimbing_lapangan_id' => $pembimbing2->id,
+            'start_date' => '2024-07-01',
+            'end_date' => '2024-11-30',
         ]);
 
         \App\Models\StudentInternship::create([
             'student_id' => $student3->id,
             'company_id' => 3,
             'pembimbing_lapangan_id' => $pembimbing1->id,
+            'start_date' => '2024-09-01',
+            'end_date' => '2025-01-31',
         ]);
 
         // Seed evaluations

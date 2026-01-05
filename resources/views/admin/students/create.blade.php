@@ -121,6 +121,68 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="start_month" class="form-label">Bulan Mulai Magang</label>
+                                <select id="start_month" name="start_month" class="form-select @error('start_month') is-invalid @enderror">
+                                    <option value="">Pilih bulan...</option>
+                                    @foreach(['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'] as $num => $month)
+                                        <option value="{{ $num }}" {{ old('start_month') == $num ? 'selected' : '' }}>{{ $month }}</option>
+                                    @endforeach
+                                </select>
+                                @error('start_month')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="start_year" class="form-label">Tahun Mulai</label>
+                                <select id="start_year" name="start_year" class="form-select @error('start_year') is-invalid @enderror">
+                                    <option value="">Pilih tahun...</option>
+                                    @for($year = date('Y') + 1; $year >= date('Y') - 5; $year--)
+                                        <option value="{{ $year }}" {{ old('start_year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                    @endfor
+                                </select>
+                                @error('start_year')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="end_month" class="form-label">Bulan Selesai Magang</label>
+                                <select id="end_month" name="end_month" class="form-select @error('end_month') is-invalid @enderror">
+                                    <option value="">Pilih bulan...</option>
+                                    @foreach(['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'] as $num => $month)
+                                        <option value="{{ $num }}" {{ old('end_month') == $num ? 'selected' : '' }}>{{ $month }}</option>
+                                    @endforeach
+                                </select>
+                                @error('end_month')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="end_year" class="form-label">Tahun Selesai</label>
+                                <select id="end_year" name="end_year" class="form-select @error('end_year') is-invalid @enderror">
+                                    <option value="">Pilih tahun...</option>
+                                    @for($year = date('Y') + 5; $year >= date('Y') - 5; $year--)
+                                        <option value="{{ $year }}" {{ old('end_year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                    @endfor
+                                </select>
+                                @error('end_year')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-primary">
                             <i class="ti ti-device-floppy"></i> Simpan
