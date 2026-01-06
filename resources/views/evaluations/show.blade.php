@@ -60,6 +60,8 @@
                             <strong>{{ $evaluation->evaluator->name }}</strong><br>
                             @if($evaluation->evaluator_role === 'admin')
                                 <span class="badge bg-primary">Admin</span>
+                            @elseif($evaluation->evaluator_role === 'kaprodi')
+                                <span class="badge bg-success">Kaprodi</span>
                             @elseif($evaluation->evaluator_role === 'dosen')
                                 <span class="badge bg-info">Dosen Pembimbing</span>
                             @elseif($evaluation->evaluator_role === 'pembimbing_lapangan')

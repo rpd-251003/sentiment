@@ -30,7 +30,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', Rule::in(['admin', 'dosen', 'pembimbing_lapangan', 'mahasiswa'])],
+            'role' => ['required', Rule::in(['admin', 'kaprodi', 'dosen', 'pembimbing_lapangan', 'mahasiswa'])],
             'company_id' => ['nullable', 'exists:companies,id', 'required_if:role,pembimbing_lapangan'],
             // Student fields
             'nim' => ['nullable', 'string', 'max:50', 'unique:students,nim', 'required_if:role,mahasiswa'],
@@ -116,7 +116,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'role' => ['required', Rule::in(['admin', 'dosen', 'pembimbing_lapangan', 'mahasiswa'])],
+            'role' => ['required', Rule::in(['admin', 'kaprodi', 'dosen', 'pembimbing_lapangan', 'mahasiswa'])],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'company_id' => ['nullable', 'exists:companies,id', 'required_if:role,pembimbing_lapangan'],
         ]);

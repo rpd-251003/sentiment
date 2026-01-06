@@ -21,7 +21,7 @@ class KpEvaluationPolicy
      */
     public function view(User $user, KpEvaluation $kpEvaluation): bool
     {
-        if ($user->isAdmin()) {
+        if ($user->isAdminOrKaprodi()) {
             return true;
         }
 
@@ -45,7 +45,7 @@ class KpEvaluationPolicy
      */
     public function create(User $user): bool
     {
-        return in_array($user->role, ['admin', 'dosen', 'pembimbing_lapangan', 'mahasiswa']);
+        return in_array($user->role, ['admin', 'kaprodi', 'dosen', 'pembimbing_lapangan', 'mahasiswa']);
     }
 
     /**
@@ -53,7 +53,7 @@ class KpEvaluationPolicy
      */
     public function update(User $user, KpEvaluation $kpEvaluation): bool
     {
-        if ($user->isAdmin()) {
+        if ($user->isAdminOrKaprodi()) {
             return true;
         }
 
@@ -65,7 +65,7 @@ class KpEvaluationPolicy
      */
     public function delete(User $user, KpEvaluation $kpEvaluation): bool
     {
-        if ($user->isAdmin()) {
+        if ($user->isAdminOrKaprodi()) {
             return true;
         }
 
@@ -77,7 +77,7 @@ class KpEvaluationPolicy
      */
     public function restore(User $user, KpEvaluation $kpEvaluation): bool
     {
-        return $user->isAdmin();
+        return $user->isAdminOrKaprodi();
     }
 
     /**
@@ -85,6 +85,6 @@ class KpEvaluationPolicy
      */
     public function forceDelete(User $user, KpEvaluation $kpEvaluation): bool
     {
-        return $user->isAdmin();
+        return $user->isAdminOrKaprodi();
     }
 }

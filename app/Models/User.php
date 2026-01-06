@@ -78,6 +78,16 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function isKaprodi()
+    {
+        return $this->role === 'kaprodi';
+    }
+
+    public function isAdminOrKaprodi()
+    {
+        return in_array($this->role, ['admin', 'kaprodi']);
+    }
+
     public function isDosen()
     {
         return $this->role === 'dosen';

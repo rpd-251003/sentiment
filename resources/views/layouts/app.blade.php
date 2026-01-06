@@ -46,7 +46,7 @@
             </div>
             <div class="navbar-content">
                 <ul class="pc-navbar">
-                    @if(auth()->user()->isAdmin())
+                    @if(auth()->user()->isAdminOrKaprodi())
                         <li class="pc-item">
                             <a href="{{ route('admin.dashboard') }}" class="pc-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                                 <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
@@ -93,7 +93,7 @@
                         </a>
                     </li>
 
-                    @if(auth()->user()->isAdmin())
+                    @if(auth()->user()->isAdminOrKaprodi())
                     <li class="pc-item pc-caption">
                         <label>Manajemen</label>
                         <i class="ti ti-settings"></i>

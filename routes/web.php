@@ -22,7 +22,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('evaluations', KpEvaluationController::class);
 
-    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['role:admin,kaprodi'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/api/pembimbing-lapangan/{company}', [StudentController::class, 'getPembimbingLapangan'])->name('api.pembimbing-lapangan');
         Route::resource('users', UserController::class);

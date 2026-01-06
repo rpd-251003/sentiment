@@ -56,6 +56,7 @@
                         <select id="role" name="role" class="form-select @error('role') is-invalid @enderror" required>
                             <option value="">Pilih role...</option>
                             <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="kaprodi" {{ old('role') === 'kaprodi' ? 'selected' : '' }}>Kaprodi</option>
                             <option value="dosen" {{ old('role') === 'dosen' ? 'selected' : '' }}>Dosen Pembimbing</option>
                             <option value="pembimbing_lapangan" {{ old('role') === 'pembimbing_lapangan' ? 'selected' : '' }}>Pembimbing Lapangan</option>
                             <option value="mahasiswa" {{ old('role') === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>

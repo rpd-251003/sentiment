@@ -56,6 +56,7 @@
                         <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
                         <select id="role" name="role" class="form-select @error('role') is-invalid @enderror" required>
                             <option value="admin" {{ (old('role') ?? $user->role) === 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="kaprodi" {{ (old('role') ?? $user->role) === 'kaprodi' ? 'selected' : '' }}>Kaprodi</option>
                             <option value="dosen" {{ (old('role') ?? $user->role) === 'dosen' ? 'selected' : '' }}>Dosen Pembimbing</option>
                             <option value="pembimbing_lapangan" {{ (old('role') ?? $user->role) === 'pembimbing_lapangan' ? 'selected' : '' }}>Pembimbing Lapangan</option>
                             <option value="mahasiswa" {{ (old('role') ?? $user->role) === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
