@@ -162,7 +162,7 @@
 <!-- Charts Row -->
 <div class="row">
     <!-- Sentiment Distribution Pie Chart -->
-    <div class="col-lg-4 col-md-6">
+    <div class="col-lg-6 col-md-6">
         <div class="card">
             <div class="card-header">
                 <h5><i class="ti ti-chart-pie"></i> Distribusi Sentimen</h5>
@@ -180,7 +180,7 @@
     </div>
 
     <!-- Rating Gauge Chart -->
-    <div class="col-lg-4 col-md-6">
+    <div class="col-lg-6 col-md-6">
         <div class="card">
             <div class="card-header">
                 <h5><i class="ti ti-gauge"></i> Performance Score</h5>
@@ -198,7 +198,7 @@
     </div>
 
     <!-- Evaluations by Role -->
-    <div class="col-lg-4 col-md-12">
+    <!-- <div class="col-lg-4 col-md-12">
         <div class="card">
             <div class="card-header">
                 <h5><i class="ti ti-users"></i> Evaluasi Berdasarkan Role</h5>
@@ -242,7 +242,7 @@
                 @endif
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 
 <!-- Student Info & Internship -->
@@ -272,23 +272,31 @@
                 </div>
                 <hr>
                 <div class="row">
-                    <div class="col-6">
-                        <p class="text-muted mb-1">Dosen Pembimbing</p>
-                        @if($student->dosen)
-                            <span class="badge bg-info">{{ $student->dosen->name }}</span>
-                        @else
-                            <span class="text-muted">Belum ditentukan</span>
-                        @endif
-                    </div>
-                    <div class="col-6">
-                        <p class="text-muted mb-1">Pembimbing Lapangan</p>
-                        @if($student->pembimbingLapangan)
-                            <span class="badge bg-warning">{{ $student->pembimbingLapangan->name }}</span>
-                        @else
-                            <span class="text-muted">Belum ditentukan</span>
-                        @endif
-                    </div>
-                </div>
+    <div class="col-6">
+        <p class="mb-1">
+            <span class="badge bg-info">Dosen Pembimbing</span>
+        </p>
+
+        @if($student->dosen)
+            <span>{{ $student->dosen->name }}</span>
+        @else
+            <span class="text-muted">Belum ditentukan</span>
+        @endif
+    </div>
+
+    <div class="col-6">
+        <p class="mb-1">
+            <span class="badge bg-warning">Pembimbing Lapangan</span>
+        </p>
+
+        @if($student->pembimbingLapangan)
+            <span>{{ $student->pembimbingLapangan->name }}</span>
+        @else
+            <span class="text-muted">Belum ditentukan</span>
+        @endif
+    </div>
+</div>
+
             </div>
         </div>
     </div>
@@ -358,7 +366,7 @@
                                 <th>Role</th>
                                 <th>Rating</th>
                                 <th>Sentimen</th>
-                                <th>Score</th>
+                                <!-- <th>Score</th> -->
                                 <th>Komentar</th>
                                 <th>Aksi</th>
                             </tr>
@@ -413,7 +421,7 @@
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
-                                <td>
+                                <!-- <td>
                                     @if($evaluation->sentimentResult)
                                         <span class="badge bg-light text-dark">
                                             {{ number_format($evaluation->sentimentResult->sentiment_score * 100, 1) }}%
@@ -421,7 +429,7 @@
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
-                                </td>
+                                </td> -->
                                 <td>
                                     <small>{{ Str::limit($evaluation->comment_text, 50) }}</small>
                                 </td>

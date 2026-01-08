@@ -104,9 +104,9 @@
                                                 </span>
                                             @endif
                                             <br>
-                                            <small class="text-muted">
+                                            <!-- <small class="text-muted">
                                                 Score: {{ number_format($evaluation->sentimentResult->sentiment_score, 3) }}
-                                            </small>
+                                            </small> -->
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif

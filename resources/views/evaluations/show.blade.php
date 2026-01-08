@@ -119,9 +119,9 @@
                                     </span>
                                 @endif
                                 <br>
-                                <small class="text-muted mt-2 d-block">
+                                <!-- <small class="text-muted mt-2 d-block">
                                     Confidence Score: {{ number_format($evaluation->sentimentResult->sentiment_score * 100, 2) }}%
-                                </small>
+                                </small> -->
                             </div>
                         @else
                             <p class="text-muted mb-0">Analisis sentimen tidak tersedia</p>

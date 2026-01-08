@@ -3,25 +3,61 @@
 @section('title', 'Dashboard Dosen')
 
 @section('content')
-<!-- [ breadcrumb ] start -->
-<div class="page-header">
-    <div class="page-block">
-        <div class="row align-items-center">
-            <div class="col-md-12">
-                <div class="page-header-title">
-                    <h5 class="m-b-10">Dashboard Dosen Pembimbing</h5>
+@php
+    $maintenanceMode = \App\Models\AppSetting::get('maintenance_mode', '0');
+@endphp
+
+@if($maintenanceMode == '1')
+    <!-- Maintenance Mode -->
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="ti ti-tool" style="font-size: 6rem; color: #FFA500;"></i>
+                    </div>
+                    <h2 class="mb-3">Under Maintenance</h2>
+                    <p class="text-muted mb-4">
+                        Sistem sedang dalam pemeliharaan. Mohon maaf atas ketidaknyamanannya.<br>
+                        Silakan coba lagi nanti.
+                    </p>
+                    <div class="alert alert-warning d-inline-block">
+                        <i class="ti ti-info-circle me-2"></i>
+                        <strong>Admin dan Kaprodi</strong> tetap dapat mengakses sistem.
+                    </div>
+                    <div class="mt-4">
+                        <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ti ti-logout"></i> Logout
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
-                    <li class="breadcrumb-item" aria-current="page">Dashboard</li>
-                </ul>
             </div>
         </div>
     </div>
-</div>
-<!-- [ breadcrumb ] end -->
+@else
+    <!-- Normal Dashboard -->
+    <!-- [ breadcrumb ] start -->
+    <div class="page-header">
+        <div class="page-block">
+            <div class="row align-items-center">
+                <div class="col-md-12">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">Dashboard Dosen Pembimbing</h5>
+                    </div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
+                        <li class="breadcrumb-item" aria-current="page">Dashboard</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ breadcrumb ] end -->
 
-<div class="row">
+    <div class="row">
     @php
         $myStudents = auth()->user()->supervisedStudents;
         $myEvaluations = auth()->user()->evaluations;
@@ -100,9 +136,13 @@
                                     </td>
                                     <td>
                                         @if(!$evaluated)
+                                            @can('create', App\Models\KpEvaluation::class)
                                             <a href="{{ route('evaluations.create') }}?student_id={{ $student->id }}" class="btn btn-sm btn-primary">
                                                 <i class="ti ti-plus"></i> Evaluasi
                                             </a>
+                                            @else
+                                            <span class="badge bg-light-secondary">Tidak dapat evaluasi</span>
+                                            @endcan
                                         @else
                                             <a href="{{ route('evaluations.index') }}" class="btn btn-sm btn-outline-primary">
                                                 <i class="ti ti-eye"></i> Lihat
@@ -125,14 +165,17 @@
                 <h5 class="mb-0"><i class="ti ti-bolt"></i> Quick Actions</h5>
             </div>
             <div class="card-body">
+                @can('create', App\Models\KpEvaluation::class)
                 <a href="{{ route('evaluations.create') }}" class="btn btn-primary me-2">
                     <i class="ti ti-plus"></i> Buat Evaluasi Baru
                 </a>
+                @endcan
                 <a href="{{ route('evaluations.index') }}" class="btn btn-outline-primary">
                     <i class="ti ti-list"></i> Lihat Semua Evaluasi
                 </a>
             </div>
         </div>
     </div>
-</div>
+    </div>
+@endif
 @endsection

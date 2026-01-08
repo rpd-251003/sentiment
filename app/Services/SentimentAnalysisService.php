@@ -13,8 +13,8 @@ class SentimentAnalysisService
 
     public function __construct()
     {
-        $this->apiUrl  = "https://router.huggingface.co/hf-inference/models/w11wo/indonesian-roberta-base-sentiment-classifier";
-        $this->hfToken = "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";
+        $this->apiUrl  = \App\Models\AppSetting::get('hf_api_url', 'https://router.huggingface.co/hf-inference/models/w11wo/indonesian-roberta-base-sentiment-classifier');
+        $this->hfToken = \App\Models\AppSetting::get('hf_token', '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');
     }
 
     /**

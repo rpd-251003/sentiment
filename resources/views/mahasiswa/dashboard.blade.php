@@ -3,25 +3,61 @@
 @section('title', 'Dashboard Mahasiswa')
 
 @section('content')
-<!-- [ breadcrumb ] start -->
-<div class="page-header">
-    <div class="page-block">
-        <div class="row align-items-center">
-            <div class="col-md-12">
-                <div class="page-header-title">
-                    <h5 class="m-b-10">Dashboard Mahasiswa</h5>
+@php
+    $maintenanceMode = \App\Models\AppSetting::get('maintenance_mode', '0');
+@endphp
+
+@if($maintenanceMode == '1')
+    <!-- Maintenance Mode -->
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="ti ti-tool" style="font-size: 6rem; color: #FFA500;"></i>
+                    </div>
+                    <h2 class="mb-3">Under Maintenance</h2>
+                    <p class="text-muted mb-4">
+                        Sistem sedang dalam pemeliharaan. Mohon maaf atas ketidaknyamanannya.<br>
+                        Silakan coba lagi nanti.
+                    </p>
+                    <div class="alert alert-warning d-inline-block">
+                        <i class="ti ti-info-circle me-2"></i>
+                        <strong>Admin dan Kaprodi</strong> tetap dapat mengakses sistem.
+                    </div>
+                    <div class="mt-4">
+                        <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ti ti-logout"></i> Logout
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
-                    <li class="breadcrumb-item" aria-current="page">Dashboard</li>
-                </ul>
             </div>
         </div>
     </div>
-</div>
-<!-- [ breadcrumb ] end -->
+@else
+    <!-- Normal Dashboard -->
+    <!-- [ breadcrumb ] start -->
+    <div class="page-header">
+        <div class="page-block">
+            <div class="row align-items-center">
+                <div class="col-md-12">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">Dashboard Mahasiswa</h5>
+                    </div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
+                        <li class="breadcrumb-item" aria-current="page">Dashboard</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ breadcrumb ] end -->
 
-<div class="row">
+    <div class="row">
     @php
         $student = auth()->user()->student;
         $myEvaluations = $student ? $student->evaluations : collect([]);
@@ -62,7 +98,7 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="col-md-6 col-xl-4">
+    <div class="col-md-6 col-xl-6">
         <div class="card">
             <div class="card-body">
                 <h6 class="mb-2 f-w-400 text-muted">Total Evaluasi</h6>
@@ -72,7 +108,7 @@
         </div>
     </div>
 
-    <div class="col-md-6 col-xl-4">
+    <!-- <div class="col-md-6 col-xl-4">
         <div class="card">
             <div class="card-body">
                 <h6 class="mb-2 f-w-400 text-muted">Self Evaluation</h6>
@@ -86,9 +122,9 @@
                 <p class="mb-0 text-muted text-sm">Status evaluasi diri</p>
             </div>
         </div>
-    </div>
+    </div> -->
 
-    <div class="col-md-6 col-xl-4">
+    <div class="col-md-6 col-xl-6">
         <div class="card">
             <div class="card-body">
                 <h6 class="mb-2 f-w-400 text-muted">Sentimen Rata-rata</h6>
@@ -193,9 +229,11 @@
             </div>
             <div class="card-body">
                 @if(!$selfEvaluation)
+                    @can('create', App\Models\KpEvaluation::class)
                     <a href="{{ route('evaluations.create') }}?student_id={{ $student->id }}" class="btn btn-primary me-2">
                         <i class="ti ti-plus"></i> Buat Self Evaluation
                     </a>
+                    @endcan
                 @else
                     <a href="{{ route('evaluations.show', $selfEvaluation->id) }}" class="btn btn-outline-primary me-2">
                         <i class="ti ti-eye"></i> Lihat Self Evaluation
@@ -207,5 +245,6 @@
             </div>
         </div>
     </div>
-</div>
+    </div>
+@endif
 @endsection

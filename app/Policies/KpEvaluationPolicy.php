@@ -45,7 +45,7 @@ class KpEvaluationPolicy
      */
     public function create(User $user): bool
     {
-        return in_array($user->role, ['admin', 'kaprodi', 'dosen', 'pembimbing_lapangan', 'mahasiswa']);
+        return $user->isPembimbingLapangan();
     }
 
     /**

@@ -28,6 +28,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('users', UserController::class);
         Route::resource('students', StudentController::class);
         Route::resource('companies', CompanyController::class);
+        Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
     });
 
     Route::middleware(['role:dosen'])->prefix('dosen')->name('dosen.')->group(function () {

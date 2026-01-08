@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <title>@yield('title', 'Dashboard') | {{ config('app.name', 'KP Evaluation System') }}</title>
+    <title>@yield('title', 'Dashboard') | {{ \App\Models\AppSetting::get('app_name', 'SENTIMENT') }}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -40,8 +40,7 @@
         <div class="navbar-wrapper">
             <div class="m-header">
                 <a href="{{ route('dashboard') }}" class="b-brand text-primary">
-                    <img src="{{ asset('assets/images/logo-dark.svg') }}" class="img-fluid logo-lg" alt="logo">
-                    <span class="badge bg-primary ms-2">KP</span>
+                    <span class="fw-bold fs-4">{{ \App\Models\AppSetting::get('app_logo', 'SENTIMENT') }}</span>
                 </a>
             </div>
             <div class="navbar-content">
@@ -86,17 +85,19 @@
                             <span class="pc-mtext">Daftar Evaluasi</span>
                         </a>
                     </li>
+                    @if(auth()->user()->isPembimbingLapangan())
                     <li class="pc-item">
                         <a href="{{ route('evaluations.create') }}" class="pc-link {{ request()->routeIs('evaluations.create') ? 'active' : '' }}">
                             <span class="pc-micon"><i class="ti ti-plus"></i></span>
                             <span class="pc-mtext">Buat Evaluasi</span>
                         </a>
                     </li>
+                    @endif
 
                     @if(auth()->user()->isAdminOrKaprodi())
                     <li class="pc-item pc-caption">
                         <label>Manajemen</label>
-                        <i class="ti ti-settings"></i>
+                        <i class="ti ti-clipboard-list"></i>
                     </li>
                     <li class="pc-item">
                         <a href="{{ route('admin.users.index') }}" class="pc-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
@@ -114,6 +115,17 @@
                         <a href="{{ route('admin.companies.index') }}" class="pc-link {{ request()->routeIs('admin.companies.*') ? 'active' : '' }}">
                             <span class="pc-micon"><i class="ti ti-building"></i></span>
                             <span class="pc-mtext">Kelola Perusahaan</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item pc-caption">
+                        <label>Pengaturan</label>
+                        <i class="ti ti-settings"></i>
+                    </li>
+                    <li class="pc-item">
+                        <a href="{{ route('admin.settings.index') }}" class="pc-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                            <span class="pc-micon"><i class="ti ti-adjustments"></i></span>
+                            <span class="pc-mtext">Application Settings</span>
                         </a>
                     </li>
                     @endif

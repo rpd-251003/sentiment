@@ -29,6 +29,13 @@ class DatabaseSeeder extends Seeder
             'role' => 'kaprodi',
         ]);
 
+        // App Settings
+        \App\Models\AppSetting::updateOrCreate(['key' => 'app_name'], ['value' => 'SENTIMENT']);
+        \App\Models\AppSetting::updateOrCreate(['key' => 'app_logo'], ['value' => 'SENTIMENT']);
+        \App\Models\AppSetting::updateOrCreate(['key' => 'maintenance_mode'], ['value' => '0']);
+        \App\Models\AppSetting::updateOrCreate(['key' => 'hf_api_url'], ['value' => 'https://router.huggingface.co/hf-inference/models/w11wo/indonesian-roberta-base-sentiment-classifier']);
+        \App\Models\AppSetting::updateOrCreate(['key' => 'hf_token'], ['value' => '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']);
+
         $dosen1 = User::create([
             'name' => 'Dr. Ahmad Wijaya',
             'email' => 'dosen1@example.com',

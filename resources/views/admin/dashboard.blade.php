@@ -59,43 +59,33 @@
         </div>
     </div>
 
+    <!-- Line Chart: Sentiment Traffic (30 Days) -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="ti ti-chart-line"></i> Traffic Sentiment Analysis (30 Hari Terakhir)</h5>
+            </div>
+            <div class="card-body">
+                @if($sentimentTraffic->isEmpty())
+                    <p class="text-muted text-center py-4">Belum ada data traffic sentiment</p>
+                @else
+                    <div id="sentimentLineChart" style="min-height: 350px;"></div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Pie Chart: Sentiment Distribution -->
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="ti ti-chart-bar"></i> Distribusi Sentimen</h5>
+                <h5 class="mb-0"><i class="ti ti-chart-pie"></i> Distribusi Sentimen</h5>
             </div>
             <div class="card-body">
                 @if($sentimentDistribution->isEmpty())
                     <p class="text-muted text-center py-4">Belum ada data sentimen</p>
                 @else
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Sentiment</th>
-                                    <th>Jumlah</th>
-                                    <th>Persentase</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php $total = $sentimentDistribution->sum('count'); @endphp
-                                @foreach($sentimentDistribution as $item)
-                                <tr>
-                                    <td>
-                                        <span class="badge
-                                            @if(str_contains(strtolower($item->sentiment_label), 'positive')) bg-success
-                                            @elseif(str_contains(strtolower($item->sentiment_label), 'negative')) bg-danger
-                                            @else bg-secondary @endif">
-                                            {{ ucfirst($item->sentiment_label) }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $item->count }}</td>
-                                    <td>{{ $total > 0 ? round(($item->count / $total) * 100, 1) : 0 }}%</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                    <div id="sentimentPieChart" style="min-height: 350px;"></div>
                 @endif
             </div>
         </div>
@@ -146,9 +136,11 @@
                 <h5 class="mb-0"><i class="ti ti-bolt"></i> Quick Actions</h5>
             </div>
             <div class="card-body">
+                @can('create', App\Models\KpEvaluation::class)
                 <a href="{{ route('evaluations.create') }}" class="btn btn-primary me-2">
                     <i class="ti ti-plus"></i> Buat Evaluasi Baru
                 </a>
+                @endcan
                 <a href="{{ route('evaluations.index') }}" class="btn btn-outline-primary">
                     <i class="ti ti-list"></i> Lihat Semua Evaluasi
                 </a>
@@ -157,3 +149,135 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    @if(!$sentimentDistribution->isEmpty())
+    // Pie Chart: Sentiment Distribution
+    const pieChartData = @json($sentimentDistribution);
+    const pieLabels = pieChartData.map(item => item.sentiment_label.charAt(0).toUpperCase() + item.sentiment_label.slice(1));
+    const pieSeries = pieChartData.map(item => parseInt(item.count));
+    const pieColors = pieChartData.map(item => {
+        if (item.sentiment_label.toLowerCase() === 'positive') return '#28a745';
+        if (item.sentiment_label.toLowerCase() === 'negative') return '#dc3545';
+        return '#6c757d';
+    });
+
+    const pieOptions = {
+        series: pieSeries,
+        chart: {
+            type: 'pie',
+            height: 350
+        },
+        labels: pieLabels,
+        colors: pieColors,
+        legend: {
+            position: 'bottom'
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val, opts) {
+                return opts.w.globals.series[opts.seriesIndex];
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return val + " evaluasi";
+                }
+            }
+        }
+    };
+
+    const pieChart = new ApexCharts(document.querySelector("#sentimentPieChart"), pieOptions);
+    pieChart.render();
+    @endif
+
+    @if(!$sentimentTraffic->isEmpty())
+    // Line Chart: Sentiment Traffic
+    const trafficData = @json($sentimentTraffic);
+    const dates = trafficData.map(item => item.date);
+    const positiveData = trafficData.map(item => parseInt(item.positive));
+    const neutralData = trafficData.map(item => parseInt(item.neutral));
+    const negativeData = trafficData.map(item => parseInt(item.negative));
+
+    const lineOptions = {
+        series: [
+            {
+                name: 'Positive',
+                data: positiveData
+            },
+            {
+                name: 'Neutral',
+                data: neutralData
+            },
+            {
+                name: 'Negative',
+                data: negativeData
+            }
+        ],
+        chart: {
+            type: 'line',
+            height: 350,
+            toolbar: {
+                show: true
+            }
+        },
+        colors: ['#28a745', '#6c757d', '#dc3545'],
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth',
+            width: 3
+        },
+        markers: {
+            size: 4,
+            hover: {
+                size: 6
+            }
+        },
+        xaxis: {
+            categories: dates,
+            type: 'datetime',
+            labels: {
+                format: 'dd MMM'
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Jumlah Sentiment'
+            },
+            labels: {
+                formatter: function(val) {
+                    return Math.round(val);
+                }
+            }
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'right'
+        },
+        tooltip: {
+            x: {
+                format: 'dd MMM yyyy'
+            },
+            y: {
+                formatter: function(val) {
+                    return val + " sentiment";
+                }
+            }
+        },
+        grid: {
+            borderColor: '#e7e7e7'
+        }
+    };
+
+    const lineChart = new ApexCharts(document.querySelector("#sentimentLineChart"), lineOptions);
+    lineChart.render();
+    @endif
+});
+</script>
+@endpush
