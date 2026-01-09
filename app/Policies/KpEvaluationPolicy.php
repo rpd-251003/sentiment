@@ -30,7 +30,8 @@ class KpEvaluationPolicy
         }
 
         if ($user->isPembimbingLapangan()) {
-            return $kpEvaluation->student->internship?->pembimbing_lapangan_id === $user->id;
+            // Pembimbing lapangan hanya bisa lihat evaluasi yang dia buat sendiri
+            return $kpEvaluation->evaluator_id === $user->id;
         }
 
         if ($user->isMahasiswa()) {

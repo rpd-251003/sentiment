@@ -28,7 +28,8 @@ class KpEvaluationController extends Controller
         if ($user->isDosen()) {
             $query->whereHas('student', fn($q) => $q->where('dosen_id', $user->id));
         } elseif ($user->isPembimbingLapangan()) {
-            $query->whereHas('student.internship', fn($q) => $q->where('pembimbing_lapangan_id', $user->id));
+            // Pembimbing lapangan hanya bisa lihat evaluasi yang dia buat sendiri
+            $query->where('evaluator_id', $user->id);
         } elseif ($user->isMahasiswa()) {
             $query->whereHas('student', fn($q) => $q->where('user_id', $user->id));
         }
@@ -58,6 +59,51 @@ class KpEvaluationController extends Controller
             'comment_text' => 'required|string|max:5000',
         ]);
 
+        // Check if request is AJAX
+        if ($request->ajax() || $request->wantsJson()) {
+            DB::beginTransaction();
+            try {
+                // Step 1: Create evaluation
+                $evaluation = KpEvaluation::create([
+                    'student_id' => $validated['student_id'],
+                    'evaluator_id' => auth()->id(),
+                    'evaluator_role' => auth()->user()->role,
+                    'rating' => $validated['rating'],
+                    'comment_text' => $validated['comment_text'],
+                ]);
+
+                // Step 2: Analyze sentiment via API
+                $sentimentResult = $this->sentimentService->analyze($validated['comment_text']);
+
+                // Step 3: Save sentiment result
+                SentimentResult::create([
+                    'kp_evaluation_id' => $evaluation->id,
+                    'sentiment_label' => $sentimentResult['sentiment_label'],
+                    'sentiment_score' => $sentimentResult['sentiment_score'],
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Evaluasi berhasil disimpan dengan analisis sentimen!',
+                    'redirect_url' => route('evaluations.show', $evaluation->id),
+                    'data' => [
+                        'evaluation_id' => $evaluation->id,
+                        'sentiment_label' => $sentimentResult['sentiment_label'],
+                        'sentiment_score' => $sentimentResult['sentiment_score'],
+                    ]
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menyimpan evaluasi: ' . $e->getMessage()
+                ], 500);
+            }
+        }
+
+        // Fallback to normal form submission
         DB::beginTransaction();
         try {
             $evaluation = KpEvaluation::create([
