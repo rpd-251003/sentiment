@@ -33,115 +33,170 @@
                 @endcan
             </div>
             <div class="card-body">
-                @if($evaluations->isEmpty())
-                    <div class="text-center py-5">
-                        <i class="ti ti-inbox" style="font-size: 4rem; color: #ccc;"></i>
-                        <h5 class="mt-3 text-muted">Belum ada evaluasi</h5>
-                        <p class="text-muted">Mulai dengan membuat evaluasi pertama Anda.</p>
-                        @can('create', App\Models\KpEvaluation::class)
-                        <a href="{{ route('evaluations.create') }}" class="btn btn-primary mt-2">
-                            <i class="ti ti-plus"></i> Buat Evaluasi
-                        </a>
-                        @endcan
-                    </div>
-                @else
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Mahasiswa</th>
-                                    <th>Evaluator</th>
-                                    <th>Role</th>
-                                    <th>Rating</th>
-                                    <th>Sentimen</th>
-                                    <th>Tanggal</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($evaluations as $evaluation)
-                                <tr>
-                                    <td>
-                                        <strong>{{ $evaluation->student->name }}</strong><br>
-                                        <small class="text-muted">{{ $evaluation->student->nim }}</small>
-                                    </td>
-                                    <td>{{ $evaluation->evaluator->name }}</td>
-                                    <td>
-                                        @if($evaluation->evaluator_role === 'admin')
-                                            <span class="badge bg-primary">Admin</span>
-                                        @elseif($evaluation->evaluator_role === 'kaprodi')
-                                            <span class="badge bg-success">Kaprodi</span>
-                                        @elseif($evaluation->evaluator_role === 'dosen')
-                                            <span class="badge bg-info">Dosen</span>
-                                        @elseif($evaluation->evaluator_role === 'pembimbing_lapangan')
-                                            <span class="badge bg-warning">Pembimbing Lapangan</span>
-                                        @else
-                                            <span class="badge bg-secondary">Mahasiswa</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($evaluation->rating)
-                                            <span class="badge bg-light-primary border border-primary">
-                                                {{ $evaluation->rating }}/10
-                                            </span>
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($evaluation->sentimentResult)
-                                            @if($evaluation->sentimentResult->sentiment_label === 'positive')
-                                                <span class="badge bg-success">
-                                                    <i class="ti ti-mood-smile"></i> Positive
-                                                </span>
-                                            @elseif($evaluation->sentimentResult->sentiment_label === 'negative')
-                                                <span class="badge bg-danger">
-                                                    <i class="ti ti-mood-sad"></i> Negative
-                                                </span>
-                                            @else
-                                                <span class="badge bg-secondary">
-                                                    <i class="ti ti-mood-neutral"></i> Neutral
-                                                </span>
-                                            @endif
-                                            <br>
-                                            <!-- <small class="text-muted">
-                                                Score: {{ number_format($evaluation->sentimentResult->sentiment_score, 3) }}
-                                            </small> -->
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <small class="text-muted">
-                                            {{ $evaluation->created_at->format('d M Y') }}<br>
-                                            {{ $evaluation->created_at->format('H:i') }}
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('evaluations.show', $evaluation) }}"
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="ti ti-eye"></i> Lihat
-                                        </a>
-                                        @can('update', $evaluation)
-                                        <a href="{{ route('evaluations.edit', $evaluation) }}"
-                                           class="btn btn-sm btn-outline-secondary">
-                                            <i class="ti ti-edit"></i> Edit
-                                        </a>
-                                        @endcan
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @endif
+                <div class="table-responsive">
+                    <table id="evaluationsTable" class="table table-hover" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Mahasiswa</th>
+                                <th>Evaluator</th>
+                                <th>Role</th>
+                                <th>Rating</th>
+                                <th>Sentimen</th>
+                                <th>Tanggal</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be loaded via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            @if(!$evaluations->isEmpty())
-            <div class="card-footer">
-                {{ $evaluations->links() }}
-            </div>
-            @endif
         </div>
     </div>
 </div>
 @endsection
+
+@push('styles')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+@endpush
+
+@push('scripts')
+<!-- jQuery - Required by DataTables -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#evaluationsTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '{{ route('evaluations.datatables') }}',
+            type: 'GET'
+        },
+        columns: [
+            {
+                data: 'student',
+                name: 'student',
+                orderable: true,
+                render: function(data) {
+                    return '<strong>' + data.name + '</strong><br>' +
+                           '<small class="text-muted">' + data.nim + '</small>';
+                }
+            },
+            {
+                data: 'evaluator',
+                name: 'evaluator',
+                orderable: true
+            },
+            {
+                data: 'evaluator_role',
+                name: 'evaluator_role',
+                orderable: true,
+                render: function(data) {
+                    const badges = {
+                        'admin': '<span class="badge bg-primary">Admin</span>',
+                        'kaprodi': '<span class="badge bg-success">Kaprodi</span>',
+                        'dosen': '<span class="badge bg-info">Dosen</span>',
+                        'pembimbing_lapangan': '<span class="badge bg-warning">Pembimbing Lapangan</span>',
+                        'mahasiswa': '<span class="badge bg-secondary">Mahasiswa</span>'
+                    };
+                    return badges[data] || data;
+                }
+            },
+            {
+                data: 'rating',
+                name: 'rating',
+                orderable: true,
+                render: function(data) {
+                    if (data) {
+                        return '<span class="badge bg-light-primary border border-primary">' +
+                               data + '/10</span>';
+                    }
+                    return '<span class="text-muted">-</span>';
+                }
+            },
+            {
+                data: 'sentiment',
+                name: 'sentiment',
+                orderable: true,
+                render: function(data) {
+                    if (!data) {
+                        return '<span class="text-muted">-</span>';
+                    }
+
+                    const icons = {
+                        'positive': '<i class="ti ti-mood-smile"></i>',
+                        'negative': '<i class="ti ti-mood-sad"></i>',
+                        'neutral': '<i class="ti ti-mood-neutral"></i>'
+                    };
+
+                    const colors = {
+                        'positive': 'bg-success',
+                        'negative': 'bg-danger',
+                        'neutral': 'bg-secondary'
+                    };
+
+                    const label = data.label.charAt(0).toUpperCase() + data.label.slice(1);
+                    return '<span class="badge ' + colors[data.label] + '">' +
+                           icons[data.label] + ' ' + label +
+                           '</span>';
+                }
+            },
+            {
+                data: 'created_at',
+                name: 'created_at',
+                orderable: true,
+                render: function(data) {
+                    return '<small class="text-muted">' +
+                           data.date + '<br>' +
+                           data.time +
+                           '</small>';
+                }
+            },
+            {
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function(data, type, row) {
+                    let buttons = '<a href="/evaluations/' + row.id + '" class="btn btn-sm btn-outline-primary">' +
+                                 '<i class="ti ti-eye"></i> Lihat</a> ';
+
+                    if (row.can_update) {
+                        buttons += '<a href="/evaluations/' + row.id + '/edit" class="btn btn-sm btn-outline-secondary">' +
+                                  '<i class="ti ti-edit"></i> Edit</a>';
+                    }
+
+                    return buttons;
+                }
+            }
+        ],
+        order: [[5, 'desc']], // Order by date descending
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+        language: {
+            processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>',
+            search: '<i class="ti ti-search"></i>',
+            searchPlaceholder: 'Cari evaluasi...',
+            lengthMenu: 'Tampilkan _MENU_ data',
+            info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ evaluasi',
+            infoEmpty: 'Tidak ada data',
+            infoFiltered: '(difilter dari _MAX_ total evaluasi)',
+            paginate: {
+                first: '<i class="ti ti-chevrons-left"></i>',
+                last: '<i class="ti ti-chevrons-right"></i>',
+                next: '<i class="ti ti-chevron-right"></i>',
+                previous: '<i class="ti ti-chevron-left"></i>'
+            },
+            emptyTable: 'Belum ada data evaluasi',
+            zeroRecords: 'Tidak ada data yang cocok'
+        },
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+    });
+});
+</script>
+@endpush

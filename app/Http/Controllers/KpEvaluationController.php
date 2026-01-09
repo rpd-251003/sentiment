@@ -22,21 +22,118 @@ class KpEvaluationController extends Controller
     {
         $this->authorize('viewAny', KpEvaluation::class);
 
+        return view('evaluations.index');
+    }
+
+    public function datatables(Request $request)
+    {
+        $this->authorize('viewAny', KpEvaluation::class);
+
         $user = auth()->user();
         $query = KpEvaluation::with(['student', 'evaluator', 'sentimentResult']);
 
+        // Apply role-based filters
         if ($user->isDosen()) {
             $query->whereHas('student', fn($q) => $q->where('dosen_id', $user->id));
         } elseif ($user->isPembimbingLapangan()) {
-            // Pembimbing lapangan hanya bisa lihat evaluasi yang dia buat sendiri
             $query->where('evaluator_id', $user->id);
         } elseif ($user->isMahasiswa()) {
             $query->whereHas('student', fn($q) => $q->where('user_id', $user->id));
         }
 
-        $evaluations = $query->latest()->paginate(15);
+        // Get DataTables parameters
+        $start = $request->input('start', 0);
+        $length = $request->input('length', 10);
+        $searchValue = $request->input('search.value', '');
+        $orderColumn = $request->input('order.0.column', 0);
+        $orderDir = $request->input('order.0.dir', 'desc');
 
-        return view('evaluations.index', compact('evaluations'));
+        // Column mapping for ordering
+        $columns = [
+            0 => 'students.name',
+            1 => 'evaluators.name',
+            2 => 'evaluator_role',
+            3 => 'rating',
+            4 => 'sentiment_results.sentiment_label',
+            5 => 'kp_evaluations.created_at'
+        ];
+
+        // Apply search filter
+        if (!empty($searchValue)) {
+            $query->where(function($q) use ($searchValue) {
+                $q->whereHas('student', function($sq) use ($searchValue) {
+                    $sq->where('name', 'like', "%{$searchValue}%")
+                       ->orWhere('nim', 'like', "%{$searchValue}%");
+                })
+                ->orWhereHas('evaluator', function($eq) use ($searchValue) {
+                    $eq->where('name', 'like', "%{$searchValue}%");
+                })
+                ->orWhere('evaluator_role', 'like', "%{$searchValue}%")
+                ->orWhere('comment_text', 'like', "%{$searchValue}%");
+            });
+        }
+
+        // Get total records before filtering
+        $totalRecords = KpEvaluation::count();
+
+        // Get filtered records count
+        $filteredRecords = $query->count();
+
+        // Apply ordering
+        if (isset($columns[$orderColumn])) {
+            $orderColumnName = $columns[$orderColumn];
+
+            if ($orderColumnName === 'students.name') {
+                $query->join('students', 'kp_evaluations.student_id', '=', 'students.id')
+                      ->orderBy('students.name', $orderDir)
+                      ->select('kp_evaluations.*');
+            } elseif ($orderColumnName === 'evaluators.name') {
+                $query->join('users as evaluators', 'kp_evaluations.evaluator_id', '=', 'evaluators.id')
+                      ->orderBy('evaluators.name', $orderDir)
+                      ->select('kp_evaluations.*');
+            } elseif ($orderColumnName === 'sentiment_results.sentiment_label') {
+                $query->leftJoin('sentiment_results', 'kp_evaluations.id', '=', 'sentiment_results.kp_evaluation_id')
+                      ->orderBy('sentiment_results.sentiment_label', $orderDir)
+                      ->select('kp_evaluations.*');
+            } else {
+                $query->orderBy($orderColumnName, $orderDir);
+            }
+        } else {
+            $query->latest();
+        }
+
+        // Apply pagination
+        $evaluations = $query->skip($start)->take($length)->get();
+
+        // Format data for DataTables
+        $data = $evaluations->map(function($evaluation) {
+            return [
+                'student' => [
+                    'name' => $evaluation->student->name,
+                    'nim' => $evaluation->student->nim
+                ],
+                'evaluator' => $evaluation->evaluator->name,
+                'evaluator_role' => $evaluation->evaluator_role,
+                'rating' => $evaluation->rating,
+                'sentiment' => $evaluation->sentimentResult ? [
+                    'label' => $evaluation->sentimentResult->sentiment_label,
+                    'score' => $evaluation->sentimentResult->sentiment_score
+                ] : null,
+                'created_at' => [
+                    'date' => $evaluation->created_at->format('d M Y'),
+                    'time' => $evaluation->created_at->format('H:i')
+                ],
+                'id' => $evaluation->id,
+                'can_update' => auth()->user()->can('update', $evaluation)
+            ];
+        });
+
+        return response()->json([
+            'draw' => intval($request->input('draw')),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $data
+        ]);
     }
 
     public function create()

@@ -20,6 +20,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('/evaluations/datatables', [KpEvaluationController::class, 'datatables'])->name('evaluations.datatables');
     Route::resource('evaluations', KpEvaluationController::class);
 
     Route::middleware(['role:admin,kaprodi'])->prefix('admin')->name('admin.')->group(function () {
