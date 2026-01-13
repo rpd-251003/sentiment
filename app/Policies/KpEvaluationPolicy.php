@@ -26,15 +26,17 @@ class KpEvaluationPolicy
         }
 
         if ($user->isDosen()) {
+            // Dosen bisa lihat semua evaluasi untuk mahasiswa bimbingannya
             return $kpEvaluation->student->dosen_id === $user->id;
         }
 
         if ($user->isPembimbingLapangan()) {
-            // Pembimbing lapangan hanya bisa lihat evaluasi yang dia buat sendiri
-            return $kpEvaluation->evaluator_id === $user->id;
+            // Pembimbing lapangan bisa lihat semua evaluasi untuk mahasiswa yang dia bimbing
+            return $kpEvaluation->student->pembimbing_lapangan_id === $user->id;
         }
 
         if ($user->isMahasiswa()) {
+            // Mahasiswa bisa lihat semua evaluasi untuk dirinya sendiri
             return $kpEvaluation->student->user_id === $user->id;
         }
 
