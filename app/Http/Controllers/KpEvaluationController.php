@@ -30,7 +30,12 @@ class KpEvaluationController extends Controller
         $this->authorize('viewAny', KpEvaluation::class);
 
         $user = auth()->user();
-        $query = KpEvaluation::with(['student', 'evaluator', 'sentimentResult']);
+        $query = KpEvaluation::with(['student', 'evaluator', 'sentimentResults']);
+
+        // Filter by student_id if provided in query parameter
+        if ($request->has('student_id') && $request->student_id) {
+            $query->where('student_id', $request->student_id);
+        }
 
         // Apply role-based filters
         if ($user->isDosen()) {
@@ -69,7 +74,8 @@ class KpEvaluationController extends Controller
                     $eq->where('name', 'like', "%{$searchValue}%");
                 })
                 ->orWhere('evaluator_role', 'like', "%{$searchValue}%")
-                ->orWhere('comment_text', 'like', "%{$searchValue}%");
+                ->orWhere('comment_nilai', 'like', "%{$searchValue}%")
+                ->orWhere('comment_masukan', 'like', "%{$searchValue}%");
             });
         }
 
@@ -107,6 +113,9 @@ class KpEvaluationController extends Controller
 
         // Format data for DataTables
         $data = $evaluations->map(function($evaluation) {
+            $sentimentNilai = $evaluation->sentimentResults->where('comment_type', 'nilai')->first();
+            $sentimentMasukan = $evaluation->sentimentResults->where('comment_type', 'masukan')->first();
+
             return [
                 'student' => [
                     'name' => $evaluation->student->name,
@@ -115,9 +124,17 @@ class KpEvaluationController extends Controller
                 'evaluator' => $evaluation->evaluator->name,
                 'evaluator_role' => $evaluation->evaluator_role,
                 'rating' => $evaluation->rating,
-                'sentiment' => $evaluation->sentimentResult ? [
-                    'label' => $evaluation->sentimentResult->sentiment_label,
-                    'score' => $evaluation->sentimentResult->sentiment_score
+                'sentiment_nilai' => $sentimentNilai ? [
+                    'label' => $sentimentNilai->sentiment_label,
+                    'positive' => $sentimentNilai->positive_score,
+                    'neutral' => $sentimentNilai->neutral_score,
+                    'negative' => $sentimentNilai->negative_score
+                ] : null,
+                'sentiment_masukan' => $sentimentMasukan ? [
+                    'label' => $sentimentMasukan->sentiment_label,
+                    'positive' => $sentimentMasukan->positive_score,
+                    'neutral' => $sentimentMasukan->neutral_score,
+                    'negative' => $sentimentMasukan->negative_score
                 ] : null,
                 'created_at' => [
                     'date' => $evaluation->created_at->format('d M Y'),
@@ -136,14 +153,15 @@ class KpEvaluationController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $this->authorize('create', KpEvaluation::class);
 
         $user = auth()->user();
         $students = $this->getAuthorizedStudents($user);
+        $selectedStudentId = $request->query('student_id');
 
-        return view('evaluations.create', compact('students'));
+        return view('evaluations.create', compact('students', 'selectedStudentId'));
     }
 
     public function store(Request $request)
@@ -153,7 +171,8 @@ class KpEvaluationController extends Controller
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
             'rating' => 'nullable|integer|min:1|max:10',
-            'comment_text' => 'required|string|max:5000',
+            'comment_nilai' => 'required|string|max:5000',
+            'comment_masukan' => 'required|string|max:5000',
         ]);
 
         // Check if request is AJAX
@@ -166,17 +185,33 @@ class KpEvaluationController extends Controller
                     'evaluator_id' => auth()->id(),
                     'evaluator_role' => auth()->user()->role,
                     'rating' => $validated['rating'],
-                    'comment_text' => $validated['comment_text'],
+                    'comment_nilai' => $validated['comment_nilai'],
+                    'comment_masukan' => $validated['comment_masukan'],
                 ]);
 
-                // Step 2: Analyze sentiment via API
-                $sentimentResult = $this->sentimentService->analyze($validated['comment_text']);
+                // Step 2 & 3: Analyze sentiment for BOTH comments via API
+                $sentimentNilai = $this->sentimentService->analyze($validated['comment_nilai']);
+                $sentimentMasukan = $this->sentimentService->analyze($validated['comment_masukan']);
 
-                // Step 3: Save sentiment result
+                // Step 4: Save both sentiment results
                 SentimentResult::create([
                     'kp_evaluation_id' => $evaluation->id,
-                    'sentiment_label' => $sentimentResult['sentiment_label'],
-                    'sentiment_score' => $sentimentResult['sentiment_score'],
+                    'comment_type' => 'nilai',
+                    'sentiment_label' => $sentimentNilai['sentiment_label'],
+                    'sentiment_score' => $sentimentNilai['sentiment_score'],
+                    'positive_score' => $sentimentNilai['positive_score'],
+                    'negative_score' => $sentimentNilai['negative_score'],
+                    'neutral_score' => $sentimentNilai['neutral_score'],
+                ]);
+
+                SentimentResult::create([
+                    'kp_evaluation_id' => $evaluation->id,
+                    'comment_type' => 'masukan',
+                    'sentiment_label' => $sentimentMasukan['sentiment_label'],
+                    'sentiment_score' => $sentimentMasukan['sentiment_score'],
+                    'positive_score' => $sentimentMasukan['positive_score'],
+                    'negative_score' => $sentimentMasukan['negative_score'],
+                    'neutral_score' => $sentimentMasukan['neutral_score'],
                 ]);
 
                 DB::commit();
@@ -187,8 +222,18 @@ class KpEvaluationController extends Controller
                     'redirect_url' => route('evaluations.show', $evaluation->id),
                     'data' => [
                         'evaluation_id' => $evaluation->id,
-                        'sentiment_label' => $sentimentResult['sentiment_label'],
-                        'sentiment_score' => $sentimentResult['sentiment_score'],
+                        'sentiment_nilai' => [
+                            'label' => $sentimentNilai['sentiment_label'],
+                            'positive' => $sentimentNilai['positive_score'],
+                            'negative' => $sentimentNilai['negative_score'],
+                            'neutral' => $sentimentNilai['neutral_score'],
+                        ],
+                        'sentiment_masukan' => [
+                            'label' => $sentimentMasukan['sentiment_label'],
+                            'positive' => $sentimentMasukan['positive_score'],
+                            'negative' => $sentimentMasukan['negative_score'],
+                            'neutral' => $sentimentMasukan['neutral_score'],
+                        ],
                     ]
                 ]);
             } catch (\Exception $e) {
@@ -208,15 +253,31 @@ class KpEvaluationController extends Controller
                 'evaluator_id' => auth()->id(),
                 'evaluator_role' => auth()->user()->role,
                 'rating' => $validated['rating'],
-                'comment_text' => $validated['comment_text'],
+                'comment_nilai' => $validated['comment_nilai'],
+                'comment_masukan' => $validated['comment_masukan'],
             ]);
 
-            $sentimentResult = $this->sentimentService->analyze($validated['comment_text']);
+            $sentimentNilai = $this->sentimentService->analyze($validated['comment_nilai']);
+            $sentimentMasukan = $this->sentimentService->analyze($validated['comment_masukan']);
 
             SentimentResult::create([
                 'kp_evaluation_id' => $evaluation->id,
-                'sentiment_label' => $sentimentResult['sentiment_label'],
-                'sentiment_score' => $sentimentResult['sentiment_score'],
+                'comment_type' => 'nilai',
+                'sentiment_label' => $sentimentNilai['sentiment_label'],
+                'sentiment_score' => $sentimentNilai['sentiment_score'],
+                'positive_score' => $sentimentNilai['positive_score'],
+                'negative_score' => $sentimentNilai['negative_score'],
+                'neutral_score' => $sentimentNilai['neutral_score'],
+            ]);
+
+            SentimentResult::create([
+                'kp_evaluation_id' => $evaluation->id,
+                'comment_type' => 'masukan',
+                'sentiment_label' => $sentimentMasukan['sentiment_label'],
+                'sentiment_score' => $sentimentMasukan['sentiment_score'],
+                'positive_score' => $sentimentMasukan['positive_score'],
+                'negative_score' => $sentimentMasukan['negative_score'],
+                'neutral_score' => $sentimentMasukan['neutral_score'],
             ]);
 
             DB::commit();
@@ -233,7 +294,7 @@ class KpEvaluationController extends Controller
     {
         $this->authorize('view', $evaluation);
 
-        $evaluation->load(['student', 'evaluator', 'sentimentResult']);
+        $evaluation->load(['student', 'evaluator', 'sentimentResults']);
 
         return view('evaluations.show', compact('evaluation'));
     }
@@ -244,6 +305,7 @@ class KpEvaluationController extends Controller
 
         $user = auth()->user();
         $students = $this->getAuthorizedStudents($user);
+        $evaluation->load('sentimentResults');
 
         return view('evaluations.edit', compact('evaluation', 'students'));
     }
@@ -255,7 +317,8 @@ class KpEvaluationController extends Controller
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
             'rating' => 'nullable|integer|min:1|max:10',
-            'comment_text' => 'required|string|max:5000',
+            'comment_nilai' => 'required|string|max:5000',
+            'comment_masukan' => 'required|string|max:5000',
         ]);
 
         DB::beginTransaction();
@@ -263,18 +326,36 @@ class KpEvaluationController extends Controller
             $evaluation->update([
                 'student_id' => $validated['student_id'],
                 'rating' => $validated['rating'],
-                'comment_text' => $validated['comment_text'],
+                'comment_nilai' => $validated['comment_nilai'],
+                'comment_masukan' => $validated['comment_masukan'],
             ]);
 
-            $sentimentResult = $this->sentimentService->analyze($validated['comment_text']);
+            $sentimentNilai = $this->sentimentService->analyze($validated['comment_nilai']);
+            $sentimentMasukan = $this->sentimentService->analyze($validated['comment_masukan']);
 
-            $evaluation->sentimentResult()->updateOrCreate(
-                ['kp_evaluation_id' => $evaluation->id],
-                [
-                    'sentiment_label' => $sentimentResult['sentiment_label'],
-                    'sentiment_score' => $sentimentResult['sentiment_score'],
-                ]
-            );
+            // Delete old sentiment results
+            $evaluation->sentimentResults()->delete();
+
+            // Create new sentiment results for both comments
+            SentimentResult::create([
+                'kp_evaluation_id' => $evaluation->id,
+                'comment_type' => 'nilai',
+                'sentiment_label' => $sentimentNilai['sentiment_label'],
+                'sentiment_score' => $sentimentNilai['sentiment_score'],
+                'positive_score' => $sentimentNilai['positive_score'],
+                'negative_score' => $sentimentNilai['negative_score'],
+                'neutral_score' => $sentimentNilai['neutral_score'],
+            ]);
+
+            SentimentResult::create([
+                'kp_evaluation_id' => $evaluation->id,
+                'comment_type' => 'masukan',
+                'sentiment_label' => $sentimentMasukan['sentiment_label'],
+                'sentiment_score' => $sentimentMasukan['sentiment_score'],
+                'positive_score' => $sentimentMasukan['positive_score'],
+                'negative_score' => $sentimentMasukan['negative_score'],
+                'neutral_score' => $sentimentMasukan['neutral_score'],
+            ]);
 
             DB::commit();
 

@@ -59,6 +59,68 @@
         </div>
     </div>
 
+    <!-- Sentiment Statistics Cards -->
+    <div class="col-md-12">
+        <div class="card bg-gradient-primary text-white">
+            <div class="card-body">
+                <h5 class="text-white mb-3"><i class="ti ti-chart-bar"></i> Statistik Sentimen Analysis</h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card bg-white text-dark">
+                            <div class="card-body text-center">
+                                <i class="ti ti-database" style="font-size: 2rem; color: #6c757d;"></i>
+                                <h3 class="mt-2 mb-0">{{ $sentimentStats['total'] }}</h3>
+                                <p class="mb-0 text-muted">Total Hasil Sentimen</p>
+                                <hr class="my-2">
+                                <h4 class="mb-0 text-primary">{{ $sentimentStats['total_all_scores'] }}</h4>
+                                <small class="text-muted">Total Semua Score</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <i class="ti ti-mood-smile" style="font-size: 2rem;"></i>
+                                <h3 class="mt-2 mb-0">{{ $sentimentStats['positive']['count'] }}</h3>
+                                <p class="mb-0">Positive (Label)</p>
+                                <small>{{ $sentimentStats['positive']['percentage'] }}% dari hasil</small>
+                                <hr class="my-2" style="border-color: rgba(255,255,255,0.3);">
+                                <h4 class="mb-0">{{ $sentimentStats['positive']['total_score'] }}</h4>
+                                <small>Total Score: {{ $sentimentStats['positive']['score_percentage'] }}%</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-secondary text-white">
+                            <div class="card-body text-center">
+                                <i class="ti ti-mood-neutral" style="font-size: 2rem;"></i>
+                                <h3 class="mt-2 mb-0">{{ $sentimentStats['neutral']['count'] }}</h3>
+                                <p class="mb-0">Neutral (Label)</p>
+                                <small>{{ $sentimentStats['neutral']['percentage'] }}% dari hasil</small>
+                                <hr class="my-2" style="border-color: rgba(255,255,255,0.3);">
+                                <h4 class="mb-0">{{ $sentimentStats['neutral']['total_score'] }}</h4>
+                                <small>Total Score: {{ $sentimentStats['neutral']['score_percentage'] }}%</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body text-center">
+                                <i class="ti ti-mood-sad" style="font-size: 2rem;"></i>
+                                <h3 class="mt-2 mb-0">{{ $sentimentStats['negative']['count'] }}</h3>
+                                <p class="mb-0">Negative (Label)</p>
+                                <small>{{ $sentimentStats['negative']['percentage'] }}% dari hasil</small>
+                                <hr class="my-2" style="border-color: rgba(255,255,255,0.3);">
+                                <h4 class="mb-0">{{ $sentimentStats['negative']['total_score'] }}</h4>
+                                <small>Total Score: {{ $sentimentStats['negative']['score_percentage'] }}%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Line Chart: Sentiment Traffic (30 Days) -->
     <div class="col-md-12">
         <div class="card">

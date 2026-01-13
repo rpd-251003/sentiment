@@ -69,43 +69,64 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="comment_text" class="form-label">Komentar Evaluasi <span class="text-danger">*</span></label>
-                        <textarea id="comment_text" name="comment_text" rows="6"
-                                  class="form-control @error('comment_text') is-invalid @enderror"
-                                  placeholder="Masukkan komentar evaluasi Anda di sini..." required>{{ old('comment_text') ?? $evaluation->comment_text }}</textarea>
+                        <label for="comment_nilai" class="form-label">Komentar Nilai <span class="text-danger">*</span></label>
+                        <textarea id="comment_nilai" name="comment_nilai" rows="4"
+                                  class="form-control @error('comment_nilai') is-invalid @enderror"
+                                  placeholder="Masukkan komentar penilaian kinerja mahasiswa..." required>{{ old('comment_nilai') ?? $evaluation->comment_nilai }}</textarea>
                         <div class="form-text">
-                            <i class="ti ti-bulb"></i> Komentar akan dianalisis ulang secara otomatis jika diubah
+                            <i class="ti ti-bulb"></i> Komentar penilaian akan dianalisis ulang jika diubah
                         </div>
-                        @error('comment_text')
+                        @error('comment_nilai')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror>
                     </div>
 
-                    @if($evaluation->sentimentResult)
+                    <div class="mb-3">
+                        <label for="comment_masukan" class="form-label">Komentar Masukan <span class="text-danger">*</span></label>
+                        <textarea id="comment_masukan" name="comment_masukan" rows="4"
+                                  class="form-control @error('comment_masukan') is-invalid @enderror"
+                                  placeholder="Masukkan saran dan masukan untuk mahasiswa..." required>{{ old('comment_masukan') ?? $evaluation->comment_masukan }}</textarea>
+                        <div class="form-text">
+                            <i class="ti ti-bulb"></i> Komentar masukan akan dianalisis ulang jika diubah
+                        </div>
+                        @error('comment_masukan')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror>
+                    </div>
+
+                    @if($evaluation->sentimentResults->count() > 0)
                     <div class="alert alert-warning" role="alert">
                         <i class="ti ti-alert-triangle"></i>
-                        <strong>Perhatian:</strong> Jika Anda mengubah komentar, sistem akan melakukan analisis sentimen ulang secara otomatis. Hasil sentimen sebelumnya akan digantikan.
+                        <strong>Perhatian:</strong> Jika Anda mengubah komentar, sistem akan melakukan analisis sentimen ulang secara otomatis untuk KEDUA komentar. Hasil sentimen sebelumnya akan digantikan.
                     </div>
-                    <div class="card bg-light mb-3">
-                        <div class="card-body">
-                            <h6 class="mb-2">Hasil Sentimen Saat Ini:</h6>
-                            @if($evaluation->sentimentResult->sentiment_label === 'positive')
-                                <span class="badge bg-success">
-                                    <i class="ti ti-mood-smile"></i> Positive
-                                </span>
-                            @elseif($evaluation->sentimentResult->sentiment_label === 'negative')
-                                <span class="badge bg-danger">
-                                    <i class="ti ti-mood-sad"></i> Negative
-                                </span>
-                            @else
-                                <span class="badge bg-secondary">
-                                    <i class="ti ti-mood-neutral"></i> Neutral
-                                </span>
-                            @endif
-                            <small class="text-muted ms-2">
-                                (Score: {{ number_format($evaluation->sentimentResult->sentiment_score * 100, 2) }}%)
-                            </small>
+                    <div class="row">
+                        @foreach($evaluation->sentimentResults as $result)
+                        <div class="col-md-6">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h6 class="mb-2">Sentimen {{ ucfirst($result->comment_type) }}:</h6>
+                                    @if($result->sentiment_label === 'positive')
+                                        <span class="badge bg-success">
+                                            <i class="ti ti-mood-smile"></i> Positive
+                                        </span>
+                                    @elseif($result->sentiment_label === 'negative')
+                                        <span class="badge bg-danger">
+                                            <i class="ti ti-mood-sad"></i> Negative
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary">
+                                            <i class="ti ti-mood-neutral"></i> Neutral
+                                        </span>
+                                    @endif
+                                    <div class="mt-2 small">
+                                        <div><i class="ti ti-mood-smile text-success"></i> Positive: {{ number_format($result->positive_score * 100, 2) }}%</div>
+                                        <div><i class="ti ti-mood-neutral text-secondary"></i> Neutral: {{ number_format($result->neutral_score * 100, 2) }}%</div>
+                                        <div><i class="ti ti-mood-sad text-danger"></i> Negative: {{ number_format($result->negative_score * 100, 2) }}%</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        @endforeach
                     </div>
                     @endif
 

@@ -1,158 +1,173 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard Dosen')
+@section('title', 'Admin Dashboard')
 
 @section('content')
-@php
-    $maintenanceMode = \App\Models\AppSetting::get('maintenance_mode', '0');
-@endphp
+<!-- [ breadcrumb ] start -->
+<div class="page-header">
+    <div class="page-block">
+        <div class="row align-items-center">
+            <div class="col-md-12">
+                <div class="page-header-title">
+                    <h5 class="m-b-10">Dashboard</h5>
+                </div>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item" aria-current="page">Dashboard</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- [ breadcrumb ] end -->
 
-@if($maintenanceMode == '1')
-    <!-- Maintenance Mode -->
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card border-0 shadow-lg">
-                <div class="card-body text-center py-5">
-                    <div class="mb-4">
-                        <i class="ti ti-tool" style="font-size: 6rem; color: #FFA500;"></i>
+<div class="row">
+    <div class="col-md-6 col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="mb-2 f-w-400 text-muted">Total Mahasiswa</h6>
+                <h4 class="mb-3">{{ $stats['total_students'] }} <span class="badge bg-light-primary border border-primary"><i class="ti ti-school"></i></span></h4>
+                <p class="mb-0 text-muted text-sm">Mahasiswa terdaftar dalam sistem</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="mb-2 f-w-400 text-muted">Total Evaluasi</h6>
+                <h4 class="mb-3">{{ $stats['total_evaluations'] }} <span class="badge bg-light-success border border-success"><i class="ti ti-clipboard-check"></i></span></h4>
+                <p class="mb-0 text-muted text-sm">Evaluasi yang telah diinput</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sentiment Statistics Cards -->
+    <div class="col-md-12">
+        <div class="card bg-gradient-primary text-white">
+            <div class="card-body">
+                <h5 class="text-white mb-3"><i class="ti ti-chart-bar"></i> Statistik Sentimen Analysis</h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card bg-white text-dark">
+                            <div class="card-body text-center">
+                                <i class="ti ti-database" style="font-size: 2rem; color: #6c757d;"></i>
+                                <h3 class="mt-2 mb-0">{{ $sentimentStats['total'] }}</h3>
+                                <p class="mb-0 text-muted">Total Hasil Sentimen</p>
+                                <hr class="my-2">
+                                <h4 class="mb-0 text-primary">{{ $sentimentStats['total_all_scores'] }}</h4>
+                                <small class="text-muted">Total Semua Score</small>
+                            </div>
+                        </div>
                     </div>
-                    <h2 class="mb-3">Under Maintenance</h2>
-                    <p class="text-muted mb-4">
-                        Sistem sedang dalam pemeliharaan. Mohon maaf atas ketidaknyamanannya.<br>
-                        Silakan coba lagi nanti.
-                    </p>
-                    <div class="alert alert-warning d-inline-block">
-                        <i class="ti ti-info-circle me-2"></i>
-                        <strong>Admin dan Kaprodi</strong> tetap dapat mengakses sistem.
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <i class="ti ti-mood-smile" style="font-size: 2rem;"></i>
+                                <h3 class="mt-2 mb-0">{{ $sentimentStats['positive']['count'] }}</h3>
+                                <p class="mb-0">Positive (Label)</p>
+                                <small>{{ $sentimentStats['positive']['percentage'] }}% dari hasil</small>
+                                <hr class="my-2" style="border-color: rgba(255,255,255,0.3);">
+                                <h4 class="mb-0">{{ $sentimentStats['positive']['total_score'] }}</h4>
+                                <small>Total Score: {{ $sentimentStats['positive']['score_percentage'] }}%</small>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mt-4">
-                        <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-primary">
-                                <i class="ti ti-logout"></i> Logout
-                            </button>
-                        </form>
+                    <div class="col-md-3">
+                        <div class="card bg-secondary text-white">
+                            <div class="card-body text-center">
+                                <i class="ti ti-mood-neutral" style="font-size: 2rem;"></i>
+                                <h3 class="mt-2 mb-0">{{ $sentimentStats['neutral']['count'] }}</h3>
+                                <p class="mb-0">Neutral (Label)</p>
+                                <small>{{ $sentimentStats['neutral']['percentage'] }}% dari hasil</small>
+                                <hr class="my-2" style="border-color: rgba(255,255,255,0.3);">
+                                <h4 class="mb-0">{{ $sentimentStats['neutral']['total_score'] }}</h4>
+                                <small>Total Score: {{ $sentimentStats['neutral']['score_percentage'] }}%</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body text-center">
+                                <i class="ti ti-mood-sad" style="font-size: 2rem;"></i>
+                                <h3 class="mt-2 mb-0">{{ $sentimentStats['negative']['count'] }}</h3>
+                                <p class="mb-0">Negative (Label)</p>
+                                <small>{{ $sentimentStats['negative']['percentage'] }}% dari hasil</small>
+                                <hr class="my-2" style="border-color: rgba(255,255,255,0.3);">
+                                <h4 class="mb-0">{{ $sentimentStats['negative']['total_score'] }}</h4>
+                                <small>Total Score: {{ $sentimentStats['negative']['score_percentage'] }}%</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@else
-    <!-- Normal Dashboard -->
-    <!-- [ breadcrumb ] start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Dashboard Dosen Pembimbing</h5>
-                    </div>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Dashboard</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- [ breadcrumb ] end -->
 
-    <div class="row">
-    @php
-        $myStudents = auth()->user()->supervisedStudents;
-        $myEvaluations = auth()->user()->evaluations;
-    @endphp
-
-    <div class="col-md-6 col-xl-4">
-        <div class="card">
-            <div class="card-body">
-                <h6 class="mb-2 f-w-400 text-muted">Mahasiswa Bimbingan</h6>
-                <h4 class="mb-3">{{ $myStudents->count() }} <span class="badge bg-light-primary border border-primary"><i class="ti ti-school"></i></span></h4>
-                <p class="mb-0 text-muted text-sm">Mahasiswa yang Anda bimbing</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6 col-xl-4">
-        <div class="card">
-            <div class="card-body">
-                <h6 class="mb-2 f-w-400 text-muted">Evaluasi Saya</h6>
-                <h4 class="mb-3">{{ $myEvaluations->count() }} <span class="badge bg-light-success border border-success"><i class="ti ti-clipboard-check"></i></span></h4>
-                <p class="mb-0 text-muted text-sm">Evaluasi yang telah Anda buat</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6 col-xl-4">
-        <div class="card">
-            <div class="card-body">
-                <h6 class="mb-2 f-w-400 text-muted">Butuh Evaluasi</h6>
-                @php
-                    $needsEvaluation = $myStudents->filter(function($student) {
-                        return $student->evaluations()->where('evaluator_id', auth()->id())->count() === 0;
-                    })->count();
-                @endphp
-                <h4 class="mb-3">{{ $needsEvaluation }} <span class="badge bg-light-warning border border-warning"><i class="ti ti-alert-circle"></i></span></h4>
-                <p class="mb-0 text-muted text-sm">Mahasiswa belum dievaluasi</p>
-            </div>
-        </div>
-    </div>
-
+    <!-- Line Chart: Sentiment Traffic (30 Days) -->
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="ti ti-users"></i> Daftar Mahasiswa Bimbingan</h5>
+                <h5 class="mb-0"><i class="ti ti-chart-line"></i> Traffic Sentiment Analysis (30 Hari Terakhir)</h5>
             </div>
             <div class="card-body">
-                @if($myStudents->isEmpty())
-                    <p class="text-muted text-center py-4">Belum ada mahasiswa bimbingan</p>
+                @if($sentimentTraffic->isEmpty())
+                    <p class="text-muted text-center py-4">Belum ada data traffic sentiment</p>
                 @else
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>NIM</th>
-                                    <th>Nama Mahasiswa</th>
-                                    <th>Perusahaan</th>
-                                    <th>Status Evaluasi</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($myStudents as $student)
-                                <tr>
-                                    <td>{{ $student->nim }}</td>
-                                    <td>{{ $student->name }}</td>
-                                    <td>{{ $student->internship->company->name ?? '-' }}</td>
-                                    <td>
-                                        @php
-                                            $evaluated = $student->evaluations()->where('evaluator_id', auth()->id())->exists();
-                                        @endphp
-                                        @if($evaluated)
-                                            <span class="badge bg-success">Sudah Dievaluasi</span>
-                                        @else
-                                            <span class="badge bg-warning">Belum Dievaluasi</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if(!$evaluated)
-                                            @can('create', App\Models\KpEvaluation::class)
-                                            <a href="{{ route('evaluations.create') }}?student_id={{ $student->id }}" class="btn btn-sm btn-primary">
-                                                <i class="ti ti-plus"></i> Evaluasi
-                                            </a>
-                                            @else
-                                            <span class="badge bg-light-secondary">Tidak dapat evaluasi</span>
-                                            @endcan
-                                        @else
-                                            <a href="{{ route('evaluations.index') }}" class="btn btn-sm btn-outline-primary">
-                                                <i class="ti ti-eye"></i> Lihat
-                                            </a>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                    <div id="sentimentLineChart" style="min-height: 350px;"></div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Pie Chart: Sentiment Distribution -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="ti ti-chart-pie"></i> Distribusi Sentimen</h5>
+            </div>
+            <div class="card-body">
+                @if($sentimentDistribution->isEmpty())
+                    <p class="text-muted text-center py-4">Belum ada data sentimen</p>
+                @else
+                    <div id="sentimentPieChart" style="min-height: 350px;"></div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="ti ti-clock"></i> Evaluasi Terbaru</h5>
+            </div>
+            <div class="card-body">
+                @if($recentEvaluations->isEmpty())
+                    <p class="text-muted text-center py-4">Belum ada evaluasi</p>
+                @else
+                    <div class="list-group list-group-flush">
+                        @foreach($recentEvaluations->take(5) as $eval)
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ $eval->student->name }}</h6>
+                                    <small class="text-muted">
+                                        oleh {{ $eval->evaluator->name }}
+                                        ({{ ucfirst(str_replace('_', ' ', $eval->evaluator_role)) }})
+                                    </small>
+                                </div>
+                                <div>
+                                    @if($eval->sentimentResult)
+                                        <span class="badge
+                                            @if(str_contains(strtolower($eval->sentimentResult->sentiment_label), 'positive')) bg-success
+                                            @elseif(str_contains(strtolower($eval->sentimentResult->sentiment_label), 'negative')) bg-danger
+                                            @else bg-secondary @endif">
+                                            {{ ucfirst($eval->sentimentResult->sentiment_label) }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
                 @endif
             </div>
@@ -176,6 +191,137 @@
             </div>
         </div>
     </div>
-    </div>
-@endif
+</div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    @if(!$sentimentDistribution->isEmpty())
+    // Pie Chart: Sentiment Distribution
+    const pieChartData = @json($sentimentDistribution);
+    const pieLabels = pieChartData.map(item => item.sentiment_label.charAt(0).toUpperCase() + item.sentiment_label.slice(1));
+    const pieSeries = pieChartData.map(item => parseInt(item.count));
+    const pieColors = pieChartData.map(item => {
+        if (item.sentiment_label.toLowerCase() === 'positive') return '#28a745';
+        if (item.sentiment_label.toLowerCase() === 'negative') return '#dc3545';
+        return '#6c757d';
+    });
+
+    const pieOptions = {
+        series: pieSeries,
+        chart: {
+            type: 'pie',
+            height: 350
+        },
+        labels: pieLabels,
+        colors: pieColors,
+        legend: {
+            position: 'bottom'
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val, opts) {
+                return opts.w.globals.series[opts.seriesIndex];
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return val + " evaluasi";
+                }
+            }
+        }
+    };
+
+    const pieChart = new ApexCharts(document.querySelector("#sentimentPieChart"), pieOptions);
+    pieChart.render();
+    @endif
+
+    @if(!$sentimentTraffic->isEmpty())
+    // Line Chart: Sentiment Traffic
+    const trafficData = @json($sentimentTraffic);
+    const dates = trafficData.map(item => item.date);
+    const positiveData = trafficData.map(item => parseInt(item.positive));
+    const neutralData = trafficData.map(item => parseInt(item.neutral));
+    const negativeData = trafficData.map(item => parseInt(item.negative));
+
+    const lineOptions = {
+        series: [
+            {
+                name: 'Positive',
+                data: positiveData
+            },
+            {
+                name: 'Neutral',
+                data: neutralData
+            },
+            {
+                name: 'Negative',
+                data: negativeData
+            }
+        ],
+        chart: {
+            type: 'line',
+            height: 350,
+            toolbar: {
+                show: true
+            }
+        },
+        colors: ['#28a745', '#6c757d', '#dc3545'],
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth',
+            width: 3
+        },
+        markers: {
+            size: 4,
+            hover: {
+                size: 6
+            }
+        },
+        xaxis: {
+            categories: dates,
+            type: 'datetime',
+            labels: {
+                format: 'dd MMM'
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Jumlah Sentiment'
+            },
+            labels: {
+                formatter: function(val) {
+                    return Math.round(val);
+                }
+            }
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'right'
+        },
+        tooltip: {
+            x: {
+                format: 'dd MMM yyyy'
+            },
+            y: {
+                formatter: function(val) {
+                    return val + " sentiment";
+                }
+            }
+        },
+        grid: {
+            borderColor: '#e7e7e7'
+        }
+    };
+
+    const lineChart = new ApexCharts(document.querySelector("#sentimentLineChart"), lineOptions);
+    lineChart.render();
+    @endif
+});
+</script>
+@endpush

@@ -3,7 +3,8 @@
     "allow": [
       "Bash(php artisan make:migration:*)",
       "Bash(php artisan:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(composer show:*)"
     ]
   }
 }

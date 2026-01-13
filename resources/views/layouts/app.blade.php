@@ -94,6 +94,25 @@
                     </li>
                     @endif
 
+                    @if(auth()->user()->isAdminOrKaprodi() || auth()->user()->isDosen())
+                    <li class="pc-item pc-caption">
+                        <label>Mahasiswa</label>
+                        <i class="ti ti-users"></i>
+                    </li>
+                    <li class="pc-item">
+                        <a href="{{ route('students.index') }}" class="pc-link {{ request()->routeIs('students.*') ? 'active' : '' }}">
+                            <span class="pc-micon"><i class="ti ti-school"></i></span>
+                            <span class="pc-mtext">
+                                @if(auth()->user()->isDosen())
+                                    Mahasiswa Bimbingan
+                                @else
+                                    Daftar Mahasiswa
+                                @endif
+                            </span>
+                        </a>
+                    </li>
+                    @endif
+
                     @if(auth()->user()->isAdminOrKaprodi())
                     <li class="pc-item pc-caption">
                         <label>Manajemen</label>
@@ -181,14 +200,14 @@
                                 </div>
                             </div>
                             <div class="dropdown-body">
-                                <a href="#" class="dropdown-item">
+                                <!-- <a href="#" class="dropdown-item">
                                     <i class="ti ti-user"></i>
                                     <span>My Profile</span>
                                 </a>
                                 <a href="#" class="dropdown-item">
                                     <i class="ti ti-settings"></i>
                                     <span>Settings</span>
-                                </a>
+                                </a> -->
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" class="dropdown-item">

@@ -23,6 +23,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/evaluations/datatables', [KpEvaluationController::class, 'datatables'])->name('evaluations.datatables');
     Route::resource('evaluations', KpEvaluationController::class);
 
+    // Students list - accessible by admin, kaprodi, and dosen
+    Route::get('/students', [\App\Http\Controllers\StudentsViewController::class, 'index'])->name('students.index');
+    Route::get('/students/datatables', [\App\Http\Controllers\StudentsViewController::class, 'datatables'])->name('students.datatables');
+
     Route::middleware(['role:admin,kaprodi'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/api/pembimbing-lapangan/{company}', [StudentController::class, 'getPembimbingLapangan'])->name('api.pembimbing-lapangan');
@@ -34,9 +38,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::middleware(['role:dosen'])->prefix('dosen')->name('dosen.')->group(function () {
-        Route::get('/dashboard', function() {
-            return view('dosen.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\Dosen\DosenController::class, 'dashboard'])->name('dashboard');
     });
 
     Route::middleware(['role:pembimbing_lapangan'])->prefix('pembimbing-lapangan')->name('pembimbing-lapangan.')->group(function () {

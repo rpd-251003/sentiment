@@ -93,10 +93,13 @@ class SentimentAnalysisService
             return [
                 'sentiment_label' => $label,
                 'sentiment_score' => $rating,
+                'positive_score' => round($positive, 4),
+                'neutral_score'  => round($neutral, 4),
+                'negative_score' => round($negative, 4),
                 'scores' => [
-                    'positive' => round($positive, 2),
-                    'neutral'  => round($neutral, 2),
-                    'negative' => round($negative, 2),
+                    'positive' => round($positive, 4),
+                    'neutral'  => round($neutral, 4),
+                    'negative' => round($negative, 4),
                 ],
             ];
         } catch (\Exception $e) {

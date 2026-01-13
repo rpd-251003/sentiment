@@ -41,7 +41,8 @@
                                 <th>Evaluator</th>
                                 <th>Role</th>
                                 <th>Rating</th>
-                                <th>Sentimen</th>
+                                <th>Sentimen Nilai</th>
+                                <th>Sentimen Masukan</th>
                                 <th>Tanggal</th>
                                 <th>Aksi</th>
                             </tr>
@@ -69,12 +70,21 @@
 
 <script>
 $(document).ready(function() {
+    // Get student_id from URL parameter if exists
+    const urlParams = new URLSearchParams(window.location.search);
+    const studentId = urlParams.get('student_id');
+
     $('#evaluationsTable').DataTable({
         processing: true,
         serverSide: true,
         ajax: {
             url: '{{ route('evaluations.datatables') }}',
-            type: 'GET'
+            type: 'GET',
+            data: function(d) {
+                if (studentId) {
+                    d.student_id = studentId;
+                }
+            }
         },
         columns: [
             {
@@ -119,9 +129,9 @@ $(document).ready(function() {
                 }
             },
             {
-                data: 'sentiment',
-                name: 'sentiment',
-                orderable: true,
+                data: 'sentiment_nilai',
+                name: 'sentiment_nilai',
+                orderable: false,
                 render: function(data) {
                     if (!data) {
                         return '<span class="text-muted">-</span>';
@@ -142,7 +152,40 @@ $(document).ready(function() {
                     const label = data.label.charAt(0).toUpperCase() + data.label.slice(1);
                     return '<span class="badge ' + colors[data.label] + '">' +
                            icons[data.label] + ' ' + label +
-                           '</span>';
+                           '</span><br><small class="text-muted">' +
+                           'P:' + (data.positive * 100).toFixed(0) + '% ' +
+                           'Ne:' + (data.neutral * 100).toFixed(0) + '% ' +
+                           'Ng:' + (data.negative * 100).toFixed(0) + '%</small>';
+                }
+            },
+            {
+                data: 'sentiment_masukan',
+                name: 'sentiment_masukan',
+                orderable: false,
+                render: function(data) {
+                    if (!data) {
+                        return '<span class="text-muted">-</span>';
+                    }
+
+                    const icons = {
+                        'positive': '<i class="ti ti-mood-smile"></i>',
+                        'negative': '<i class="ti ti-mood-sad"></i>',
+                        'neutral': '<i class="ti ti-mood-neutral"></i>'
+                    };
+
+                    const colors = {
+                        'positive': 'bg-success',
+                        'negative': 'bg-danger',
+                        'neutral': 'bg-secondary'
+                    };
+
+                    const label = data.label.charAt(0).toUpperCase() + data.label.slice(1);
+                    return '<span class="badge ' + colors[data.label] + '">' +
+                           icons[data.label] + ' ' + label +
+                           '</span><br><small class="text-muted">' +
+                           'P:' + (data.positive * 100).toFixed(0) + '% ' +
+                           'Ne:' + (data.neutral * 100).toFixed(0) + '% ' +
+                           'Ng:' + (data.negative * 100).toFixed(0) + '%</small>';
                 }
             },
             {
@@ -173,7 +216,7 @@ $(document).ready(function() {
                 }
             }
         ],
-        order: [[5, 'desc']], // Order by date descending
+        order: [[6, 'desc']], // Order by date descending
         pageLength: 10,
         lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
         language: {

@@ -38,7 +38,7 @@
                             <option value="">Pilih mahasiswa...</option>
                             @foreach($students as $student)
                                 <option value="{{ $student->id }}"
-                                    {{ (old('student_id') ?? request('student_id')) == $student->id ? 'selected' : '' }}>
+                                    {{ (old('student_id') ?? $selectedStudentId ?? null) == $student->id ? 'selected' : '' }}>
                                     {{ $student->name }} ({{ $student->nim }})
                                 </option>
                             @endforeach
@@ -70,21 +70,34 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="comment_text" class="form-label">Komentar Evaluasi <span class="text-danger">*</span></label>
-                        <textarea id="comment_text" name="comment_text" rows="6"
-                                  class="form-control @error('comment_text') is-invalid @enderror"
-                                  placeholder="Masukkan komentar evaluasi Anda di sini..." required>{{ old('comment_text') }}</textarea>
+                        <label for="comment_nilai" class="form-label">Komentar Nilai <span class="text-danger">*</span></label>
+                        <textarea id="comment_nilai" name="comment_nilai" rows="4"
+                                  class="form-control @error('comment_nilai') is-invalid @enderror"
+                                  placeholder="Masukkan komentar penilaian kinerja mahasiswa..." required>{{ old('comment_nilai') }}</textarea>
                         <div class="form-text">
-                            <i class="ti ti-bulb"></i> Komentar ini akan dianalisis secara otomatis untuk menentukan sentimen (positif/negatif/netral)
+                            <i class="ti ti-bulb"></i> Komentar penilaian kinerja dan hasil kerja mahasiswa
                         </div>
-                        @error('comment_text')
+                        @error('comment_nilai')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="comment_masukan" class="form-label">Komentar Masukan <span class="text-danger">*</span></label>
+                        <textarea id="comment_masukan" name="comment_masukan" rows="4"
+                                  class="form-control @error('comment_masukan') is-invalid @enderror"
+                                  placeholder="Masukkan saran dan masukan untuk mahasiswa..." required>{{ old('comment_masukan') }}</textarea>
+                        <div class="form-text">
+                            <i class="ti ti-bulb"></i> Saran dan masukan untuk pengembangan mahasiswa
+                        </div>
+                        @error('comment_masukan')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror>
                     </div>
 
                     <div class="alert alert-info" role="alert">
                         <i class="ti ti-info-circle"></i>
-                        <strong>Catatan:</strong> Sistem akan melakukan analisis sentimen secara otomatis berdasarkan komentar yang Anda masukkan. Anda tidak perlu memilih sentimen secara manual.
+                        <strong>Catatan:</strong> Sistem akan melakukan analisis sentimen secara otomatis untuk <strong>KEDUA</strong> komentar (Nilai dan Masukan). Anda akan melihat hasil sentimen lengkap dengan skor positive, negative, dan neutral untuk setiap komentar.
                     </div>
 
                     <div class="d-flex gap-2 mt-4">
@@ -150,7 +163,7 @@
                         <i class="ti ti-circle me-3 text-muted" id="icon3"></i>
                         <div class="flex-grow-1">
                             <strong id="text3">Analisis sentimen...</strong>
-                            <div class="text-muted small" id="desc3">Memanggil Hugging Face API</div>
+                            <div class="text-muted small" id="desc3">Menganalisis 2 komentar via Hugging Face API</div>
                         </div>
                         <i class="ti ti-check text-success" id="check3" style="display: none; font-size: 1.5rem;"></i>
                     </div>
@@ -165,7 +178,7 @@
                         <i class="ti ti-circle me-3 text-muted" id="icon4"></i>
                         <div class="flex-grow-1">
                             <strong id="text4">Menyimpan hasil...</strong>
-                            <div class="text-muted small" id="desc4">Menyimpan hasil analisis sentimen</div>
+                            <div class="text-muted small" id="desc4">Menyimpan 2 hasil analisis sentimen</div>
                         </div>
                         <i class="ti ti-check text-success" id="check4" style="display: none; font-size: 1.5rem;"></i>
                     </div>

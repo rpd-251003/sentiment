@@ -83,7 +83,7 @@
                 <hr>
 
                 <div class="row mb-4">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <h6 class="text-muted mb-2">Rating</h6>
                         @if($evaluation->rating)
                             <div class="mb-2">
@@ -101,44 +101,137 @@
                             <p class="text-muted mb-0">Tidak ada rating</p>
                         @endif
                     </div>
+                </div>
+
+                <hr>
+
+                <div class="row mb-4">
+                    <!-- Komentar Nilai -->
                     <div class="col-md-6">
-                        <h6 class="text-muted mb-2">Analisis Sentimen</h6>
-                        @if($evaluation->sentimentResult)
-                            <div>
-                                @if($evaluation->sentimentResult->sentiment_label === 'positive')
-                                    <span class="badge bg-success" style="font-size: 1.2rem; padding: 0.5rem 1rem;">
-                                        <i class="ti ti-mood-smile"></i> Positive
-                                    </span>
-                                @elseif($evaluation->sentimentResult->sentiment_label === 'negative')
-                                    <span class="badge bg-danger" style="font-size: 1.2rem; padding: 0.5rem 1rem;">
-                                        <i class="ti ti-mood-sad"></i> Negative
-                                    </span>
-                                @else
-                                    <span class="badge bg-secondary" style="font-size: 1.2rem; padding: 0.5rem 1rem;">
-                                        <i class="ti ti-mood-neutral"></i> Neutral
-                                    </span>
-                                @endif
-                                <br>
-                                <!-- <small class="text-muted mt-2 d-block">
-                                    Confidence Score: {{ number_format($evaluation->sentimentResult->sentiment_score * 100, 2) }}%
-                                </small> -->
+                        <h6 class="text-muted mb-3"><i class="ti ti-star"></i> Komentar Nilai</h6>
+                        <div class="card bg-light mb-3">
+                            <div class="card-body">
+                                <p class="mb-0" style="white-space: pre-wrap; line-height: 1.8;">{{ $evaluation->comment_nilai }}</p>
                             </div>
-                        @else
-                            <p class="text-muted mb-0">Analisis sentimen tidak tersedia</p>
+                        </div>
+
+                        @php
+                            $resultNilai = $evaluation->sentimentResults->where('comment_type', 'nilai')->first();
+                        @endphp
+
+                        @if($resultNilai)
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-gradient-primary text-white">
+                                <strong><i class="ti ti-chart-bar"></i> Analisis Sentimen Nilai</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    @if($resultNilai->sentiment_label === 'positive')
+                                        <span class="badge bg-success" style="font-size: 1.1rem; padding: 0.4rem 0.8rem;">
+                                            <i class="ti ti-mood-smile"></i> Positive
+                                        </span>
+                                    @elseif($resultNilai->sentiment_label === 'negative')
+                                        <span class="badge bg-danger" style="font-size: 1.1rem; padding: 0.4rem 0.8rem;">
+                                            <i class="ti ti-mood-sad"></i> Negative
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary" style="font-size: 1.1rem; padding: 0.4rem 0.8rem;">
+                                            <i class="ti ti-mood-neutral"></i> Neutral
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="small">
+                                    <div class="mb-2">
+                                        <i class="ti ti-mood-smile text-success"></i> <strong>Positive:</strong>
+                                        <span class="float-end">{{ number_format($resultNilai->positive_score * 100, 2) }}%</span>
+                                        <div class="progress mt-1" style="height: 6px;">
+                                            <div class="progress-bar bg-success" style="width: {{ $resultNilai->positive_score * 100 }}%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <i class="ti ti-mood-neutral text-secondary"></i> <strong>Neutral:</strong>
+                                        <span class="float-end">{{ number_format($resultNilai->neutral_score * 100, 2) }}%</span>
+                                        <div class="progress mt-1" style="height: 6px;">
+                                            <div class="progress-bar bg-secondary" style="width: {{ $resultNilai->neutral_score * 100 }}%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-0">
+                                        <i class="ti ti-mood-sad text-danger"></i> <strong>Negative:</strong>
+                                        <span class="float-end">{{ number_format($resultNilai->negative_score * 100, 2) }}%</span>
+                                        <div class="progress mt-1" style="height: 6px;">
+                                            <div class="progress-bar bg-danger" style="width: {{ $resultNilai->negative_score * 100 }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+
+                    <!-- Komentar Masukan -->
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-3"><i class="ti ti-message-circle"></i> Komentar Masukan</h6>
+                        <div class="card bg-light mb-3">
+                            <div class="card-body">
+                                <p class="mb-0" style="white-space: pre-wrap; line-height: 1.8;">{{ $evaluation->comment_masukan }}</p>
+                            </div>
+                        </div>
+
+                        @php
+                            $resultMasukan = $evaluation->sentimentResults->where('comment_type', 'masukan')->first();
+                        @endphp
+
+                        @if($resultMasukan)
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-gradient-primary text-white">
+                                <strong><i class="ti ti-chart-bar"></i> Analisis Sentimen Masukan</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    @if($resultMasukan->sentiment_label === 'positive')
+                                        <span class="badge bg-success" style="font-size: 1.1rem; padding: 0.4rem 0.8rem;">
+                                            <i class="ti ti-mood-smile"></i> Positive
+                                        </span>
+                                    @elseif($resultMasukan->sentiment_label === 'negative')
+                                        <span class="badge bg-danger" style="font-size: 1.1rem; padding: 0.4rem 0.8rem;">
+                                            <i class="ti ti-mood-sad"></i> Negative
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary" style="font-size: 1.1rem; padding: 0.4rem 0.8rem;">
+                                            <i class="ti ti-mood-neutral"></i> Neutral
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="small">
+                                    <div class="mb-2">
+                                        <i class="ti ti-mood-smile text-success"></i> <strong>Positive:</strong>
+                                        <span class="float-end">{{ number_format($resultMasukan->positive_score * 100, 2) }}%</span>
+                                        <div class="progress mt-1" style="height: 6px;">
+                                            <div class="progress-bar bg-success" style="width: {{ $resultMasukan->positive_score * 100 }}%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <i class="ti ti-mood-neutral text-secondary"></i> <strong>Neutral:</strong>
+                                        <span class="float-end">{{ number_format($resultMasukan->neutral_score * 100, 2) }}%</span>
+                                        <div class="progress mt-1" style="height: 6px;">
+                                            <div class="progress-bar bg-secondary" style="width: {{ $resultMasukan->neutral_score * 100 }}%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-0">
+                                        <i class="ti ti-mood-sad text-danger"></i> <strong>Negative:</strong>
+                                        <span class="float-end">{{ number_format($resultMasukan->negative_score * 100, 2) }}%</span>
+                                        <div class="progress mt-1" style="height: 6px;">
+                                            <div class="progress-bar bg-danger" style="width: {{ $resultMasukan->negative_score * 100 }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         @endif
                     </div>
                 </div>
 
                 <hr>
-
-                <div class="mb-3">
-                    <h6 class="text-muted mb-3">Komentar Evaluasi</h6>
-                    <div class="card bg-light">
-                        <div class="card-body">
-                            <p class="mb-0" style="white-space: pre-wrap; line-height: 1.8;">{{ $evaluation->comment_text }}</p>
-                        </div>
-                    </div>
-                </div>
 
                 @if($evaluation->updated_at != $evaluation->created_at)
                 <div class="alert alert-info" role="alert">
