@@ -122,8 +122,17 @@ $(document).ready(function() {
                 orderable: true,
                 render: function(data) {
                     if (data) {
-                        return '<span class="badge bg-light-primary border border-primary">' +
-                               data + '/10</span>';
+                        let badgeClass = '';
+                        if (data <= 25) {
+                            badgeClass = 'bg-danger';
+                        } else if (data <= 50) {
+                            badgeClass = 'bg-warning';
+                        } else if (data <= 75) {
+                            badgeClass = 'bg-info';
+                        } else {
+                            badgeClass = 'bg-success';
+                        }
+                        return '<span class="badge ' + badgeClass + '">' + data + '/100</span>';
                     }
                     return '<span class="text-muted">-</span>';
                 }

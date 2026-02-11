@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <title>@yield('title', 'Dashboard') | {{ \App\Models\AppSetting::get('app_name', 'SENTIMENT') }}</title>
+    <title>@yield('title', 'Dashboard') | Sistem Evaluasi KP - UNSADA</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- [Favicon] icon -->
-    <link rel="icon" href="{{ asset('assets/images/favicon.svg') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('images/unsada-logo.png') }}" type="image/png">
     <!-- [Google Font] Family -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" id="main-font-link">
     <!-- [Tabler Icons] -->
@@ -39,8 +39,14 @@
     <nav class="pc-sidebar">
         <div class="navbar-wrapper">
             <div class="m-header">
-                <a href="{{ route('dashboard') }}" class="b-brand text-primary">
-                    <span class="fw-bold fs-4">{{ \App\Models\AppSetting::get('app_logo', 'SENTIMENT') }}</span>
+                <a href="{{ route('dashboard') }}" class="b-brand text-primary text-center" style="display: block;">
+                    <div class="d-flex align-items-center justify-content-center mb-1">
+                        <img src="{{ asset('images/unsada-logo.png') }}" alt="Universitas Darma Persada" style="max-width: 45px; height: auto; margin-right: 8px;">
+                        <span class="fw-bold fs-5">UNSADA</span>
+                    </div>
+                    <div style="font-size: 0.7rem; line-height: 1.2; color: #6c757d; font-weight: 500;">
+                        Sistem Evaluasi KP
+                    </div>
                 </a>
             </div>
             <div class="navbar-content">
@@ -250,7 +256,7 @@
         <div class="footer-wrapper container-fluid">
             <div class="row">
                 <div class="col-sm my-1">
-                    <p class="m-0">KP Evaluation System &copy; {{ date('Y') }} - Universitas</p>
+                    <p class="m-0">Sistem Evaluasi KP &copy; {{ date('Y') }} - Universitas Darma Persada</p>
                 </div>
                 <div class="col-auto my-1">
                     <ul class="list-inline footer-link mb-0">

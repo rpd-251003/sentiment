@@ -52,20 +52,45 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="rating" class="form-label">Rating (1-10)</label>
-                        <select id="rating" name="rating" class="form-select @error('rating') is-invalid @enderror">
-                            <option value="">Tidak ada rating</option>
-                            @for($i = 1; $i <= 10; $i++)
-                                <option value="{{ $i }}" {{ old('rating') == $i ? 'selected' : '' }}>
-                                    {{ $i }} - {{ $i <= 3 ? 'Kurang' : ($i <= 6 ? 'Cukup' : ($i <= 8 ? 'Baik' : 'Sangat Baik')) }}
-                                </option>
-                            @endfor
-                        </select>
+                        <label for="rating" class="form-label">
+                            Rating (1-100)
+                            <span class="badge bg-secondary ms-2" id="ratingBadge">0 - Tidak ada rating</span>
+                        </label>
+                        <input type="hidden" name="rating" id="ratingInput" value="{{ old('rating', '') }}">
+
+                        <div class="rating-slider-container">
+                            <!-- Slider -->
+                            <input type="range"
+                                   class="form-range @error('rating') is-invalid @enderror"
+                                   id="ratingSlider"
+                                   min="0"
+                                   max="100"
+                                   step="1"
+                                   value="{{ old('rating', 0) }}"
+                                   style="height: 8px;">
+
+                            <!-- Value Display -->
+                            <div class="d-flex justify-content-between mt-2 text-muted small">
+                                <span>0</span>
+                                <span>25</span>
+                                <span>50</span>
+                                <span>75</span>
+                                <span>100</span>
+                            </div>
+
+                            <!-- Visual Indicator -->
+                            <div class="mt-3 p-3 rounded text-center" id="ratingIndicator" style="background: #f8f9fa; border: 2px dashed #dee2e6;">
+                                <div class="rating-emoji mb-2" id="ratingEmoji" style="font-size: 3rem;">➖</div>
+                                <div class="rating-label fw-bold" id="ratingLabel" style="font-size: 1.1rem; color: #6c757d;">Tidak ada rating</div>
+                                <div class="rating-description text-muted small mt-1" id="ratingDescription">Geser slider untuk memberikan rating</div>
+                            </div>
+                        </div>
+
                         @error('rating')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                         <div class="form-text">
-                            <i class="ti ti-info-circle"></i> Rating bersifat opsional
+                            <i class="ti ti-info-circle"></i> Rating bersifat opsional. Set ke 0 jika tidak ingin memberikan rating.
                         </div>
                     </div>
 
@@ -201,6 +226,107 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('evaluationForm');
     const submitBtn = document.getElementById('submitBtn');
     const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+
+    // Rating Slider Handler
+    const ratingSlider = document.getElementById('ratingSlider');
+    const ratingInput = document.getElementById('ratingInput');
+    const ratingBadge = document.getElementById('ratingBadge');
+    const ratingIndicator = document.getElementById('ratingIndicator');
+    const ratingEmoji = document.getElementById('ratingEmoji');
+    const ratingLabel = document.getElementById('ratingLabel');
+    const ratingDescription = document.getElementById('ratingDescription');
+
+    function updateRatingDisplay(value) {
+        const numValue = parseInt(value);
+
+        // Update hidden input
+        ratingInput.value = numValue === 0 ? '' : numValue;
+
+        // Update badge
+        if(numValue === 0) {
+            ratingBadge.textContent = '0 - Tidak ada rating';
+            ratingBadge.className = 'badge bg-secondary ms-2';
+        } else {
+            ratingBadge.textContent = numValue;
+            if(numValue <= 25) {
+                ratingBadge.className = 'badge bg-danger ms-2';
+            } else if(numValue <= 50) {
+                ratingBadge.className = 'badge bg-warning ms-2';
+            } else if(numValue <= 75) {
+                ratingBadge.className = 'badge bg-info ms-2';
+            } else {
+                ratingBadge.className = 'badge bg-success ms-2';
+            }
+        }
+
+        // Update visual indicator
+        let emoji, label, description, bgColor, borderColor, textColor;
+
+        if(numValue === 0) {
+            emoji = '➖';
+            label = 'Tidak ada rating';
+            description = 'Geser slider untuk memberikan rating';
+            bgColor = '#f8f9fa';
+            borderColor = '#dee2e6';
+            textColor = '#6c757d';
+        } else if(numValue <= 25) {
+            emoji = '😞';
+            label = 'Sangat Kurang';
+            description = 'Kinerja sangat di bawah ekspektasi';
+            bgColor = '#ffe5e5';
+            borderColor = '#dc3545';
+            textColor = '#dc3545';
+        } else if(numValue <= 50) {
+            emoji = '😐';
+            label = 'Kurang';
+            description = 'Kinerja di bawah ekspektasi, perlu banyak perbaikan';
+            bgColor = '#fff3cd';
+            borderColor = '#ffc107';
+            textColor = '#856404';
+        } else if(numValue <= 75) {
+            emoji = '🙂';
+            label = 'Baik';
+            description = 'Kinerja sesuai ekspektasi';
+            bgColor = '#d1ecf1';
+            borderColor = '#0dcaf0';
+            textColor = '#055160';
+        } else if(numValue <= 90) {
+            emoji = '😊';
+            label = 'Sangat Baik';
+            description = 'Kinerja melebihi ekspektasi';
+            bgColor = '#d1f0dd';
+            borderColor = '#198754';
+            textColor = '#0f5132';
+        } else {
+            emoji = '🤩';
+            label = 'Luar Biasa';
+            description = 'Kinerja sangat luar biasa, exceptional!';
+            bgColor = '#d1f0dd';
+            borderColor = '#198754';
+            textColor = '#0f5132';
+        }
+
+        ratingEmoji.textContent = emoji;
+        ratingLabel.textContent = label;
+        ratingLabel.style.color = textColor;
+        ratingDescription.textContent = description;
+        ratingIndicator.style.background = bgColor;
+        ratingIndicator.style.borderColor = borderColor;
+        ratingIndicator.style.borderStyle = 'solid';
+
+        // Animate slider color
+        const percentage = numValue / 100;
+        const hue = percentage * 120; // 0 (red) to 120 (green)
+        ratingSlider.style.accentColor = numValue === 0 ? '#6c757d' : `hsl(${hue}, 70%, 50%)`;
+    }
+
+    // Initialize display
+    updateRatingDisplay(ratingSlider.value);
+
+    // Listen to slider changes
+    ratingSlider.addEventListener('input', function() {
+        updateRatingDisplay(this.value);
+    });
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();

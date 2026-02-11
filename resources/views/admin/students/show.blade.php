@@ -113,7 +113,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="mb-0">Rata-rata Rating</h6>
-                        <h4 class="mb-0">{{ $avgRating }}/10</h4>
+                        <h4 class="mb-0">{{ $avgRating }}/100</h4>
                     </div>
                 </div>
             </div>
@@ -394,10 +394,19 @@
                                 </td>
                                 <td>
                                     @if($evaluation->rating)
-                                        <div class="d-flex align-items-center">
-                                            <i class="ti ti-star-filled text-warning me-1"></i>
-                                            <strong>{{ $evaluation->rating }}/10</strong>
-                                        </div>
+                                        @php
+                                            $badgeClass = '';
+                                            if ($evaluation->rating <= 25) {
+                                                $badgeClass = 'bg-danger';
+                                            } elseif ($evaluation->rating <= 50) {
+                                                $badgeClass = 'bg-warning';
+                                            } elseif ($evaluation->rating <= 75) {
+                                                $badgeClass = 'bg-info';
+                                            } else {
+                                                $badgeClass = 'bg-success';
+                                            }
+                                        @endphp
+                                        <span class="badge {{ $badgeClass }}">{{ $evaluation->rating }}/100</span>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif

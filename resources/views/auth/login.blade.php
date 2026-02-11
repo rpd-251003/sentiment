@@ -6,9 +6,10 @@
 <div class="card my-5">
     <div class="card-body">
         <div class="text-center mb-4">
-            <img src="{{ asset('assets/images/logo-dark.svg') }}" alt="logo" class="mb-3" style="max-width: 150px">
-            <h3 class="mb-0"><b>KP Evaluation System</b></h3>
-            <p class="text-muted">Silakan login untuk melanjutkan</p>
+            <img src="{{ asset('images/unsada-logo.png') }}" alt="Universitas Darma Persada" class="mb-3" style="max-width: 120px; height: auto;">
+            <h3 class="mb-0"><b>Sistem Evaluasi KP</b></h3>
+            <p class="text-muted">Universitas Darma Persada</p>
+            <p class="text-muted small">Silakan login untuk melanjutkan</p>
         </div>
 
         <form method="POST" action="{{ route('login') }}">

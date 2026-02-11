@@ -76,9 +76,10 @@ class SentimentAnalysisService
 
             $label = array_keys($scores, max($scores))[0];
 
-            // Weighted rating (1–10)
-            $weightedScore = ($positive * 10) + ($neutral * 5.5) + ($negative * 1);
-            $rating = max(1, min(10, (int) round($weightedScore)));
+            // Weighted rating (1–100)
+            // positive: 100, neutral: 55, negative: 10
+            $weightedScore = ($positive * 100) + ($neutral * 55) + ($negative * 10);
+            $rating = max(1, min(100, (int) round($weightedScore)));
 
             Log::info('Sentiment analysis result', [
                 'label'   => $label,

@@ -86,19 +86,50 @@
                     <div class="col-md-12">
                         <h6 class="text-muted mb-2">Rating</h6>
                         @if($evaluation->rating)
-                            <div class="mb-2">
-                                <span class="badge bg-light-primary border border-primary" style="font-size: 1.2rem; padding: 0.5rem 1rem;">
-                                    {{ $evaluation->rating }}/10
-                                </span>
+                            <div class="mb-3">
+                                @php
+                                    $ratingValue = $evaluation->rating;
+                                    $badgeClass = '';
+                                    $emoji = '';
+                                    $label = '';
+
+                                    if ($ratingValue <= 25) {
+                                        $badgeClass = 'bg-danger';
+                                        $emoji = '😞';
+                                        $label = 'Sangat Kurang';
+                                    } elseif ($ratingValue <= 50) {
+                                        $badgeClass = 'bg-warning';
+                                        $emoji = '😐';
+                                        $label = 'Kurang';
+                                    } elseif ($ratingValue <= 75) {
+                                        $badgeClass = 'bg-info';
+                                        $emoji = '🙂';
+                                        $label = 'Baik';
+                                    } elseif ($ratingValue <= 90) {
+                                        $badgeClass = 'bg-success';
+                                        $emoji = '😊';
+                                        $label = 'Sangat Baik';
+                                    } else {
+                                        $badgeClass = 'bg-success';
+                                        $emoji = '🤩';
+                                        $label = 'Luar Biasa';
+                                    }
+                                @endphp
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="badge {{ $badgeClass }}" style="font-size: 1.5rem; padding: 0.6rem 1.2rem;">
+                                        {{ $emoji }} {{ $evaluation->rating }}/100
+                                    </span>
+                                    <span class="text-muted">{{ $label }}</span>
+                                </div>
                             </div>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-primary" role="progressbar"
-                                     style="width: {{ ($evaluation->rating / 10) * 100 }}%"
-                                     aria-valuenow="{{ $evaluation->rating }}" aria-valuemin="0" aria-valuemax="10">
+                            <div class="progress" style="height: 12px;">
+                                <div class="progress-bar {{ $badgeClass }}" role="progressbar"
+                                     style="width: {{ $evaluation->rating }}%"
+                                     aria-valuenow="{{ $evaluation->rating }}" aria-valuemin="0" aria-valuemax="100">
                                 </div>
                             </div>
                         @else
-                            <p class="text-muted mb-0">Tidak ada rating</p>
+                            <p class="text-muted mb-0">➖ Tidak ada rating</p>
                         @endif
                     </div>
                 </div>

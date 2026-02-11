@@ -188,7 +188,19 @@
                                     </td>
                                     <td>
                                         @if($evaluation->rating)
-                                            <span class="badge bg-light-primary">{{ $evaluation->rating }}/10</span>
+                                            @php
+                                                $badgeClass = '';
+                                                if ($evaluation->rating <= 25) {
+                                                    $badgeClass = 'bg-danger';
+                                                } elseif ($evaluation->rating <= 50) {
+                                                    $badgeClass = 'bg-warning';
+                                                } elseif ($evaluation->rating <= 75) {
+                                                    $badgeClass = 'bg-info';
+                                                } else {
+                                                    $badgeClass = 'bg-success';
+                                                }
+                                            @endphp
+                                            <span class="badge {{ $badgeClass }}">{{ $evaluation->rating }}/100</span>
                                         @else
                                             -
                                         @endif

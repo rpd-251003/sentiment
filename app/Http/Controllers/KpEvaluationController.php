@@ -170,7 +170,7 @@ class KpEvaluationController extends Controller
 
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
-            'rating' => 'nullable|integer|min:1|max:10',
+            'rating' => 'nullable|integer|min:1|max:100',
             'comment_nilai' => 'required|string|max:5000',
             'comment_masukan' => 'required|string|max:5000',
         ]);
@@ -316,7 +316,7 @@ class KpEvaluationController extends Controller
 
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
-            'rating' => 'nullable|integer|min:1|max:10',
+            'rating' => 'nullable|integer|min:1|max:100',
             'comment_nilai' => 'required|string|max:5000',
             'comment_masukan' => 'required|string|max:5000',
         ]);
